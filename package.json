@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/lastsummer/node_express#readme",
   "dependencies": {
-    "express": "^4.17.2"
+    "crypto": "^1.0.1",
+    "ejs": "^3.1.6",
+    "express": "^4.17.2",
+    "multer": "^1.4.4"
   }
 }
