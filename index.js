@@ -6,6 +6,6 @@ app.get('/', function (req, res) {
     res.send('Hello')
 })
   // 5.首頁
-let port = 3000;
+let port = 80;
   //3.設定port位置
 app.listen(port);
