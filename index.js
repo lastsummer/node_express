@@ -31,5 +31,5 @@ app.get('/download/:filename', function(req, res){
   res.download(file);
 });
 
-let port = 8080;
+let port = 80;
 app.listen(port);
