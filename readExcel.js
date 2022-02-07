@@ -113,7 +113,7 @@ async function parserHeartExcel(filename){
       totaScore = ageScore + cholesterolScore + highCholesterolScore + pressScore + sickScore + smokeScore;
     
       if(sex=="男"){
-        if(totaScore<-1) probability = "2%"
+        if(totaScore<=-1) probability = "2%"
         else if(totaScore==0) probability = "3%"
         else if(totaScore==1) probability = "3%"
         else if(totaScore==2) probability = "4%"
