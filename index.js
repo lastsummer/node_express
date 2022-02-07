@@ -19,10 +19,17 @@ app.post('/import/Upload4', upload.single('uploadExcel4'), async function(req, r
   const fileName = await readExcel.parserExcel(req.file.path)
   res.json({fileName})
 })
+
+app.post('/import/UploadHeart', upload.single('uploadExcelHeart'), async function(req, res){
+  console.log(req.file);
+  const fileName = await readExcel.parserHeartExcel(req.file.path)
+  res.json({fileName})
+})
+
 app.get('/download/:filename', function(req, res){
   const file = `./result/${req.params.filename}`;
   res.download(file);
 });
 
-let port = 80;
+let port = 8080;
 app.listen(port);
