@@ -75,7 +75,7 @@ async function parserHeartExcel(filename){
         else if(sbp<159 || dbp<99) pressScore = 2;
         else if(sbp>=160 && dbp>=100) pressScore = 3;
 
-        if(sick.indexOf("糖尿病")>=0) sickScore = 2;
+        if(sick && sick.indexOf("糖尿病")>=0) sickScore = 2;
         if(smoke!="從未吸菸") smokeScore = 2;
 
       }else if(sex=="女"){
@@ -107,13 +107,13 @@ async function parserHeartExcel(filename){
         else if(sbp<159 || dbp<99) pressScore = 2;
         else if(sbp>=160 && dbp>=100) pressScore = 3;
 
-        if(sick.indexOf("糖尿病")>=0) sickScore = 4;
+        if(sick && sick.indexOf("糖尿病")>=0) sickScore = 4;
         if(smoke!="從未吸菸") smokeScore = 2;
       }
       totaScore = ageScore + cholesterolScore + highCholesterolScore + pressScore + sickScore + smokeScore;
     
       if(sex=="男"){
-        if(totaScore<-1) probability = "2%"
+        if(totaScore<=-1) probability = "2%"
         else if(totaScore==0) probability = "3%"
         else if(totaScore==1) probability = "3%"
         else if(totaScore==2) probability = "4%"
