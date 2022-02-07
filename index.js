@@ -20,16 +20,13 @@ app.post('/import/Upload4', upload.single('uploadExcel4'), async function(req, r
   res.json({fileName})
 })
 
-app.post('/import/UploadHeart', upload.single('uploadExcelHeart'), async function(req, res){
-  console.log(req.file);
-  const fileName = await readExcel.parserHeartExcel(req.file.path)
-  res.json({fileName})
-})
-
 app.get('/download/:filename', function(req, res){
   const file = `./result/${req.params.filename}`;
   res.download(file);
 });
+app.get('/wang', function(req, res){
+  res.render('wangLogin')
+})
 
 let port = 80;
 app.listen(port);

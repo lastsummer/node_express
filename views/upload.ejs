@@ -11,7 +11,7 @@
   <body>
     <form id="formUpload4">
       <div class="mb-3">
-        <label for="formFile" class="form-label">4級</label>
+        <label for="formFile" class="form-label">4級 / 心力評量表</label>
         <input class="form-control" type="file" id="uploadExcel4" name="uploadExcel4" />
       </div>
 			<div class="spinner-border" role="status" id="loadingUpload4" style="display:none">
@@ -20,19 +20,6 @@
       <div id="resultUpload4"></div>
       <div>
 				<button type="button" class="btn btn-primary" id="btnUpload4">送出</button>
-			</div>
-		</form>
-    <form id="formUploadHeart">
-      <div class="mb-3">
-        <label for="formFile" class="form-label">心力評量表</label>
-        <input class="form-control" type="file" id="uploadExcelHeart" name="uploadExcelHeart" />
-      </div>
-			<div class="spinner-border" role="status" id="loadingUploadHeart" style="display:none">
-				<span class="visually-hidden">Loading...</span>
-			</div>
-      <div id="resultUploadHeart"></div>
-      <div>
-				<button type="button" class="btn btn-primary" id="btnUploadHeart">送出</button>
 			</div>
 		</form>
     
@@ -74,10 +61,6 @@
       $('#btnUpload4').on('click', function (event) {
         event.preventDefault();
         uploadFile('Upload4');
-      });
-      $('#btnUploadHeart').on('click', function (event) {
-        event.preventDefault();
-        uploadFile('UploadHeart');
       });
     </script>
   </body>
