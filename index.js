@@ -45,5 +45,5 @@ app.get('/wang/deleteTime', async function(req, res){
   res.json({data})
 })
 
-let port = 8080;
+let port = 80;
 app.listen(port);
