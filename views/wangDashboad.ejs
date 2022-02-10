@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>打卡資料</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="../vendors/feather/feather.css" />
+    <link rel="stylesheet" href="../vendors/ti-icons/css/themify-icons.css" />
+    <link rel="stylesheet" href="../vendors/css/vendor.bundle.base.css" />
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="../vendors/datatables.net-bs4/dataTables.bootstrap4.css" />
+    <link rel="stylesheet" href="../vendors/ti-icons/css/themify-icons.css" />
+    <link rel="stylesheet" type="text/css" href="../js/select.dataTables.min.css" />
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../css/vertical-layout-light/style.css" />
+    <!-- endinject -->
+    <link rel="shortcut icon" href="images/favicon.png" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- partial:partials/_navbar.html -->
+      <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center"></div>
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+            <span class="icon-menu"></span>
+          </button>
+          <ul class="navbar-nav navbar-nav-right">
+            <li class="nav-item dropdown"></li>
+          </ul>
+        </div>
+      </nav>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+
+        <!-- partial:partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+          <ul class="nav">
+            <li class="nav-item">
+              <a class="nav-link" href="../wang/dashboard">
+                <i class="icon-grid menu-icon"></i>
+                <span class="menu-title">打卡資料</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="row">
+              <div class="col-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">查詢條件</h4>
+                    <form class="form-inline" id="searchForm">
+                      <label class="col-form-label" for="inlineFormInputName2" style="padding-right:10px">年</label>
+                      <input name="searchYear" type="text" class="form-control mb-2 mr-sm-2" id="year" placeholder="<%= data.currentYear %>" value="<%= data.currentYear %>">
+                      
+                      <label class="col-form-label" for="inlineFormInputGroupUsername2" style="padding-left:10px;padding-right:10px">月</label>
+                      <input name="searchMonth" type="text" class="form-control mb-2 mr-sm-2" id="month" placeholder="<%= data.currentMonth %>" value="<%= data.currentMonth %>">
+                      <button type="submit" class="btn btn-primary mb-2" id="searchSubmit">查詢</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body" style="display:none" id="loading">
+                    <div class="spinner-border text-primary mr-2" role="status">
+                      <span class="sr-only">Loading...</span>
+                    </div>
+                  </div>
+                  <div class="card-body" id="showResult">
+                    <h4 class="card-title"> <%= data.currentYear %>年<%= data.currentMonth %>月上班打卡資料</h4>
+                    <p class="card-description">
+                      總時數： 
+                      <code style="color:#4B49AC;font-size:20px;" class="totalDataFormate"><%= data.totalTimeFormate %></code>
+                    </p>
+                    <p class="card-description">
+                      時數表示方式： 
+                      <code style="color:#FFC100">超過9小時：黃色</code>
+                      <code style="color:#248AFD">小於8小時：藍色</code>
+                      <code style="color:#57B657">8~9小時：綠色</code>
+                      <code>有問題：紅色</code>
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>日期</th>
+                            <th>上班打卡</th>
+                            <th>下班打卡</th>
+                            <th>時數</th>
+                            <th>動作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% for(var i=0; i<data.dayList.length; i++) { %>
+                            <tr>
+                              <td>
+                                <%= data.dayList[i].formate %>
+                              </td>
+                              <td class="py-1">
+                                <p id="startStr"><%= data.dayList[i].start %></p>
+                                <form class="form-inline" id="startForm" style="display:none">
+                                  <input type="text" class="form-control mb-2 mr-sm-2 startHour">
+                                  <label class="col-form-label" for="inlineFormInputGroupUsername2">：</label>
+                                  <input type="text" class="form-control mb-2 mr-sm-2 startMinute">
+                                  <code class="startError"></code>
+                                </form>
+                              </td>
+                              <td class="py-1">
+                                <p id="endStr"><%= data.dayList[i].end %></p>
+                                <form class="form-inline" id="endForm" style="display:none">
+                                  <input type="text" class="form-control mb-2 mr-sm-2 endHour">
+                                  <label class="col-form-label" for="inlineFormInputGroupUsername2">：</label>
+                                  <input type="text" class="form-control mb-2 mr-sm-2 endMinute">
+                                  <code class="endError"></code>
+                                </form>
+                              </td>
+                              <td class="timeProgress">
+                                <% if (data.dayList[i].time.timeFormate !="") { %>
+                                  <div class="progress">
+                                    <div class="progress-bar <%= data.dayList[i].time.timeColor %>" role="progressbar" style="width: <%= data.dayList[i].time.timeBar %>" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+                                  </div>
+                                  <br/>
+                                  <%= data.dayList[i].time.timeFormate%>
+                                 <% } %>
+                              </td>
+                              <td year="<%= data.currentYear %>" day="<%= data.dayList[i].day %>" month="<%= data.currentMonth %>"
+                                start="<%= data.dayList[i].start %>" end="<%= data.dayList[i].end %>" >
+                                <button type="button" class="btn btn-inverse-success btn-fw editBtn">修改</button>
+                                <button type="button" class="btn btn-inverse-danger btn-fw deleteBtn">刪除</button>
+                                <button type="button" class="btn btn-inverse-info btn-fw saveBtn" style="display:none">儲存</button>
+                                <button type="button" class="btn btn-inverse-danger cancelBtn" style="display:none">取消</button>
+                              </td>
+                            </tr>
+                          <% } %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+
+    <!-- plugins:js -->
+    <script src="../vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="../vendors/chart.js/Chart.min.js"></script>
+    <script src="../vendors/datatables.net/jquery.dataTables.js"></script>
+    <script src="../vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+    <script src="../js/dataTables.select.min.js"></script>
+
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../js/off-canvas.js"></script>
+    <script src="../js/hoverable-collapse.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/settings.js"></script>
+    <script src="../js/todolist.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page-->
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/Chart.roundedBarCharts.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <!-- End custom js for this page-->
+
+  <script>
+
+    let createProcessBar = (time) => {
+      let reportHtml = `<div class="progress">`;
+      reportHtml = reportHtml + `<div class="progress-bar ${time.timeColor}" role="progressbar" style="width: ${time.timeBar}" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>`
+      reportHtml = reportHtml + `</div>`;
+      reportHtml = reportHtml + `<br/>`;
+      reportHtml = reportHtml + time.timeFormate;
+      return reportHtml
+    }
+    let createHTML = (response) => {
+
+      let reportHtml = `<h4 class='card-title'> ${response.currentYear}年${response.currentMonth}月上班打卡資料</h4>`;
+      reportHtml = reportHtml + `<p class="card-description">`;
+      reportHtml = reportHtml + `總時數： `;
+      reportHtml = reportHtml + `<code style="color:#4B49AC;font-size:20px;" class="totalDataFormate">${response.totalTimeFormate}</code> `;
+      reportHtml = reportHtml + `</p> `;
+      reportHtml = reportHtml + `<p class="card-description">`;
+      reportHtml = reportHtml + `時數表示方式：`;
+      reportHtml = reportHtml + `<code style="color:#FFC100">超過9小時：黃色</code>`;
+      reportHtml = reportHtml + `<code style="color:#248AFD">小於8小時：藍色</code>`;
+      reportHtml = reportHtml + `<code style="color:#57B657">8~9小時：綠色</code>`;
+      reportHtml = reportHtml + `<code>有問題：紅色</code>`;
+      reportHtml = reportHtml + `</p> `;
+
+      reportHtml = reportHtml + `<div class="table-responsive"> `;
+      reportHtml = reportHtml + `<table class="table table-striped"> `;
+      reportHtml = reportHtml + `<thead> `;
+      reportHtml = reportHtml + `<tr> `;
+      reportHtml = reportHtml + `<th>日期</th> `;
+      reportHtml = reportHtml + `<th>上班打卡</th> `;
+      reportHtml = reportHtml + `<th>下班打卡</th> `;
+      reportHtml = reportHtml + `<th>時數</th> `;
+      reportHtml = reportHtml + `<th>動作</th> `;
+      reportHtml = reportHtml + `</tr> `;
+      reportHtml = reportHtml + `</thead> `;
+      reportHtml = reportHtml + `<tbody> `;
+
+      for (let singleDate of response.dayList) {
+        reportHtml = reportHtml + '<tr>';
+        reportHtml = reportHtml + `<td>${singleDate.formate}</td>`;
+        reportHtml = reportHtml + `<td class="py-1">`;
+        reportHtml = reportHtml + `<p id="startStr">${singleDate.start}</p>`;
+        reportHtml = reportHtml + `<form class="form-inline" id="startForm" style="display:none">`;
+        reportHtml = reportHtml + `<input type="text" class="form-control mb-2 mr-sm-2 startHour">`;
+        reportHtml = reportHtml + `<label class="col-form-label" for="inlineFormInputGroupUsername2">：</label>`;
+        reportHtml = reportHtml + `<input type="text" class="form-control mb-2 mr-sm-2 startMinute">`;
+        reportHtml = reportHtml + `<code class="startError"></code>`;
+        reportHtml = reportHtml + `</form>`;
+        reportHtml = reportHtml + `</td>`;
+        reportHtml = reportHtml + `<td class="py-1">`;
+        reportHtml = reportHtml + `<p id="endStr">${singleDate.end}</p>`;
+        reportHtml = reportHtml + `<form class="form-inline" id="endForm" style="display:none">`;
+        reportHtml = reportHtml + `<input type="text" class="form-control mb-2 mr-sm-2 endHour">`;
+        reportHtml = reportHtml + `<label class="col-form-label" for="inlineFormInputGroupUsername2">：</label>`;
+        reportHtml = reportHtml + `<input type="text" class="form-control mb-2 mr-sm-2 endMinute">`;
+        reportHtml = reportHtml + `<code class="endError"></code>`;
+        reportHtml = reportHtml + `</form>`;
+        reportHtml = reportHtml + `</td>`;
+        if(singleDate.time.timeFormate!=""){
+          reportHtml = reportHtml + `<td class="timeProgress">`;
+          reportHtml = reportHtml + createProcessBar(singleDate.time)
+          reportHtml = reportHtml + `</td>`;
+        }else{
+          reportHtml = reportHtml + `<td></td>`;
+        }
+        reportHtml = reportHtml + `<td year="${response.currentYear}" day="${singleDate.day}" month="${response.currentMonth}"`;
+        reportHtml = reportHtml + `start="${singleDate.start}" end="${singleDate.end}" >`;
+        reportHtml = reportHtml + `<button type="button" class="btn btn-inverse-success btn-fw editBtn">修改</button>`;
+        reportHtml = reportHtml + `<button type="button" class="btn btn-inverse-danger btn-fw deleteBtn">刪除</button>`;
+        reportHtml = reportHtml + `<button type="button" class="btn btn-inverse-info btn-fw saveBtn" style="display:none">儲存</button>`;
+        reportHtml = reportHtml + `<button type="button" class="btn btn-inverse-danger cancelBtn" style="display:none">取消</button></td>`;
+        reportHtml = reportHtml + '</tr>';
+      }
+      reportHtml = reportHtml + '</tbody>';
+      reportHtml = reportHtml + '</table>';
+      reportHtml = reportHtml + '</div>';
+      return reportHtml;
+    };
+    $('#searchSubmit').on('click', function (event) {
+      event.preventDefault();
+      let form = $('#searchForm')[0]
+      $("#loading").show()
+		  $("#showResult").html("")
+      $.ajax({
+          type: 'get',
+          url: '/wang/search?month='+$( "input[name=searchMonth]" ).val()+"&year="+$( "input[name=searchYear]" ).val(),
+          processData: false,
+          contentType: false,
+          cache: false,
+          async: true,
+          timeout: 1000000,
+          success: function (data) {
+						$("#showResult").html(createHTML(data.data))
+            $('.editBtn').on('click', function (event) {
+              event.preventDefault();
+              openEdit(this);
+            });
+            $('.cancelBtn').on('click', function (event) {
+              event.preventDefault();
+              closeEdit(this)
+            });
+            $('.deleteBtn').on('click', function (event) {
+              event.preventDefault();
+              deleteDay(this)
+            });
+            $('.saveBtn').on('click', function (event) {
+              event.preventDefault();
+              saveDay(this)
+            });
+	    			$("#loading").hide()
+          },
+          error: function (e) {
+            console.log('ERROR : ', e);
+          },
+      });
+    });
+
+    function openEdit(obj){
+      $(obj).parent().parent().find("#startStr").hide()
+      $(obj).parent().parent().find("#endStr").hide()
+      $(obj).parent().parent().find("#startForm").show()
+      $(obj).parent().parent().find("#endForm").show()
+
+      $(obj).parent().parent().find(".editBtn").hide()
+      $(obj).parent().parent().find(".deleteBtn").hide()
+      $(obj).parent().parent().find(".saveBtn").show()
+      $(obj).parent().parent().find(".cancelBtn").show()
+
+      const startTime = $(obj).parent().attr("start")
+      const endTime = $(obj).parent().attr("end")
+      if(startTime!=""){
+        const startArr = startTime.split(":")
+        $(obj).parent().parent().find(".startHour").val(startArr[0])
+        $(obj).parent().parent().find(".startMinute").val(startArr[1])
+      }
+      if(endTime!=""){
+        const endArr = endTime.split(":")
+        $(obj).parent().parent().find(".endHour").val(endArr[0])
+        $(obj).parent().parent().find(".endMinute").val(endArr[1])
+      }
+    }
+
+    $('.editBtn').on('click', function (event) {
+      event.preventDefault();
+      openEdit(this);
+    });
+
+    function closeEdit(obj){
+      $(obj).parent().parent().find("#startStr").show()
+      $(obj).parent().parent().find("#endStr").show()
+      $(obj).parent().parent().find("#startForm").hide()
+      $(obj).parent().parent().find("#endForm").hide()
+
+      $(obj).parent().parent().find(".editBtn").show()
+      $(obj).parent().parent().find(".deleteBtn").show()
+      $(obj).parent().parent().find(".saveBtn").hide()
+      $(obj).parent().parent().find(".cancelBtn").hide()
+    }
+
+    $('.cancelBtn').on('click', function (event) {
+      event.preventDefault();
+      closeEdit(this)
+    });
+
+    function deleteDay(obj){
+      $.ajax({
+          type: 'get',
+          url: '/wang/deleteTime?month='+$(obj).parent().attr("month")+"&year="+$(obj).parent().attr("year")+"&day="+$(obj).parent().attr("day"),
+          processData: false,
+          contentType: false,
+          cache: false,
+          async: true,
+          timeout: 1000000,
+          success: function (data) {
+            
+						$(".totalDataFormate").html(data.data.totalTimeFormate)
+            $(obj).parent().parent().find(".timeProgress").html("")
+            $(obj).parent().attr("start", "")
+            $(obj).parent().attr("end", "")
+            $(obj).parent().parent().find("#startStr").html("")
+            $(obj).parent().parent().find("#endStr").html("")
+          }.bind(obj),
+          error: function (e) {
+            console.log('ERROR : ', e);
+          },
+      });
+    }
+
+
+    $('.deleteBtn').on('click', function (event) {
+      event.preventDefault();
+      deleteDay(this)
+    });
+
+    function validTime(startHour, startMinute){
+      let errorMsg = ""
+      if(startHour=="" || startMinute==""){
+        errorMsg = "請輸入時間"
+      }else if(startHour<=0 || startHour>=25){
+        errorMsg = "小時介於1~24"
+      }else if(startMinute>=61){
+        errorMsg = "分鐘介於0~60"
+      }
+      return errorMsg
+    }
+
+    function validForm(obj){
+      let startValid = true
+      const startHour = $(obj).parent().parent().find(".startHour").val()
+      const startMinute = $(obj).parent().parent().find(".startMinute").val()
+      const start = startHour+":"+startMinute
+      const startErrorMsg = validTime(startHour, startMinute)
+      if(startErrorMsg!=""){
+        startValid = false
+      }
+      $(obj).parent().parent().find(".startError").html(startErrorMsg)
+
+      let endValid = true
+      const endHour = $(obj).parent().parent().find(".endHour").val()
+      const endMinute = $(obj).parent().parent().find(".endMinute").val()
+      const end = endHour+":"+endMinute
+      const endErrorMsg = validTime(endHour, endMinute)
+      if(endErrorMsg!=""){
+        endValid = false
+      }
+
+      return {endValid, startValid, start, end}
+    }
+
+    function saveDay(obj){
+      const { startValid, endValid, start, end} = validForm(obj)
+      if(startValid && endValid){
+        $.ajax({
+          type: 'get',
+          url: '/wang/saveTime?month='+$(obj).parent().attr("month")+"&year="+$(obj).parent().attr("year")+"&day="+$(obj).parent().attr("day")
+          +"&start="+start+"&end="+end,
+          processData: false,
+          contentType: false,
+          cache: false,
+          async: true,
+          timeout: 1000000,
+          success: function (data) {
+						$(".totalDataFormate").html(data.data.totalTimeFormate)
+            $(obj).parent().parent().find(".timeProgress").html(createProcessBar(data.data.time))
+            $(obj).parent().attr("start", data.data.start)
+            $(obj).parent().attr("end", data.data.end)
+            $(obj).parent().parent().find("#startStr").html(data.data.start)
+            $(obj).parent().parent().find("#endStr").html(data.data.end)
+
+          }.bind(obj),
+          error: function (e) {
+            console.log('ERROR : ', e);
+          },
+        });
+        closeEdit(obj)
+      }
+    }
+
+    $('.saveBtn').on('click', function (event) {
+      event.preventDefault();
+      saveDay(this)
+    });
+
+  </script>
+  </body>
+</html>
