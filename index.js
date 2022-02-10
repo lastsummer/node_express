@@ -15,11 +15,22 @@ app.get('/', function (req, res) {
 app.get('/upload', function(req, res){
   res.render('upload')
 })
+app.get('/upload/id', function(req, res){
+  res.render('uploadID')
+})
+
 app.post('/import/Upload4', upload.single('uploadExcel4'), async function(req, res){
   console.log(req.file);
   const fileName = await readExcel.parserExcel(req.file.path)
   res.json({fileName})
 })
+
+app.post('/import/UploadID', upload.single('uploadExcelID'), async function(req, res){
+  await readExcel.parserIDExcel(req.file.path)
+  res.json("ok")
+})
+
+
 
 app.get('/download/:filename', function(req, res){
   const file = `./result/${req.params.filename}`;
