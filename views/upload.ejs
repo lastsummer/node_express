@@ -22,7 +22,23 @@
 				<button type="button" class="btn btn-primary" id="btnUpload4">送出</button>
 			</div>
 		</form>
-    
+    <div style="height:100px">
+
+    </div>
+
+    <form id="formUploadPress">
+      <div class="mb-3">
+        <label for="formFile" class="form-label">血壓</label>
+        <input class="form-control" type="file" id="uploadExcelPress" name="uploadExcelPress" />
+      </div>
+			<div class="spinner-border" role="status" id="loadingUploadPress" style="display:none">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+      <div id="resultUploadPress"></div>
+      <div>
+				<button type="button" class="btn btn-primary" id="btnUploadPress">送出</button>
+			</div>
+		</form>
 
     <script src="./js/jquery-3.6.0.min.js"></script>
 
@@ -61,6 +77,11 @@
       $('#btnUpload4').on('click', function (event) {
         event.preventDefault();
         uploadFile('Upload4');
+      });
+
+      $('#btnUploadPress').on('click', function (event) {
+        event.preventDefault();
+        uploadFile('UploadPress');
       });
     </script>
   </body>

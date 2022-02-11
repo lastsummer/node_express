@@ -487,7 +487,8 @@ module.exports.parserIDExcel = async function parserIDExcel(filename) {
       depart: user['部門名稱'],
       departNo: user['歸屬組織代碼'],
       two: user['上兩層組織中文名稱'],
-      one: user['上一層組織中文名稱']
+      one: user['上一層組織中文名稱'],
+      name: user['姓名']
     }
   })
   fs.writeFile('idTOdepart.json', JSON.stringify(arrayList), (error)=>{
@@ -497,5 +498,131 @@ module.exports.parserIDExcel = async function parserIDExcel(filename) {
   fs.writeFile('workIdTOdepart.json', JSON.stringify(workArrayList), (error)=>{
     if(error) console.log(error)
     else console.log('success')
+  })
+}
+
+
+function addSevenZero(str){
+  if(str.length<2){
+    return `000000${str}`
+  }else if(str.length<3){
+    return `00000${str}`
+  }else if(str.length<4){
+    return `0000${str}`
+  }else if(str.length<5){
+    return `000${str}`
+  }else if(str.length<6){
+    return `00${str}`
+  }else if(str.length<7){
+    return `0${str}`
+  }
+  return str
+}
+
+function checkIDCorrect(str){
+  let result = true;
+  if(str.length>=8){
+    if(str.substr(0, str.length-7)*1!=0) result = false
+  }
+  return result
+}
+
+module.exports.parserPressExcel = async function parserPressExcel(filename) {
+
+  const file = await getFile(`workIdTOdepart.json`)
+  const idData = JSON.parse(file);
+
+  const excel = xlsx.readFile(filename);
+  var xlData = xlsx.utils.sheet_to_json(excel.Sheets['表單回應 1']);
+  let arrayList = {};
+  xlData.forEach((user) => {
+    const workId = addSevenZero(user['員工工號-7碼(若不足7碼，請前面補打【0】數字)']+"")
+    const isIDCorrect = checkIDCorrect(workId)
+    const sbp = (user['收縮壓'])*1
+    const dbp = (user['舒張壓'])*1
+    const pulse = (user['脈搏'])*1
+    if(isIDCorrect && sbp && dbp && pulse){
+      
+      const count = arrayList[workId] ? (arrayList[workId].count)*1 + 1 : 1
+      const averageSbp = arrayList[workId] ? ((arrayList[workId].averageSbp)*1 + sbp) : sbp
+      const averageDbp = arrayList[workId] ? ((arrayList[workId].averageDbp)*1 + dbp) : dbp
+      const averagePulse = arrayList[workId] ? ((arrayList[workId].averagePulse)*1 + pulse) : pulse
+      const pressObj = { 
+        count, averageSbp, averageDbp, averagePulse }
+      arrayList[workId] = {...pressObj}
+    }
+    
+  })
+
+  let result = []
+  for (let i in arrayList) {
+    if(arrayList[i].averageSbp>=180) arrayList[i].desc = "高血壓危象"
+    else if(arrayList[i].averageSbp>=160) arrayList[i].desc = "第二期"
+    else if(arrayList[i].averageSbp>=140) arrayList[i].desc = "第一期"
+    else if(arrayList[i].averageSbp>=120) arrayList[i].desc = "高血壓前期"
+    else arrayList[i].desc = "正常"
+
+    result.push({
+      上兩層組織中文名稱: idData[i]? idData[i].two: '',
+      上一層組織中文名稱: idData[i]? idData[i].one: '',
+      代碼: idData[i]? idData[i].departNo: '',
+      部門名稱: idData[i]? idData[i].depart: '',
+      工號: i,
+      姓名:idData[i]? idData[i].name: '',
+      平均收縮壓: Math.round(arrayList[i].averageSbp/ arrayList[i].count),
+      平均舒張壓: Math.round(arrayList[i].averageDbp/ arrayList[i].count),
+      平均脈搏: Math.round(arrayList[i].averagePulse/ arrayList[i].count),
+      測量次數: arrayList[i].count,
+      高血壓等級: arrayList[i].desc
+    })
+
+  }
+
+  const ws = xlsx.utils.json_to_sheet(result);
+  // var workbook = xlsx.utils.book_new()
+  xlsx.utils.book_append_sheet(excel, ws, '血壓統計');
+
+  const id = crypto.randomBytes(20).toString('hex');
+  xlsx.writeFile(excel, `result/${id}.xlsx`);
+
+  await changePressColor(id)
+  return `${id}.xlsx`;
+}
+
+async function changePressColor(fileName){
+  return new Promise((resolve, reject) => {
+    XlsxPopulate.fromFileAsync(`result/${fileName}.xlsx`)
+    .then((workbook) => {
+      const sheet = workbook.sheet('血壓統計');
+      sheet.column("A").width(20)
+      sheet.column("B").width(20)
+      sheet.column("C").width(15)
+      sheet.column("D").width(20)
+      sheet.column("E").width(11)
+      sheet.column("F").width(11)
+      const rows = sheet._rows;
+      rows.forEach((row) => {
+        row._cells.forEach((cell) => {
+          let style = {
+            horizontalAlignment: 'center'
+          }
+          if(cell.rowNumber()==1){
+            style.fill = 'fffacd'
+          }
+
+          cell.style(style)
+        });
+      });
+
+      workbook.toFileAsync(`result/${fileName}.xlsx`);
+      resolve(fileName)
+
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    
+  }).catch(error => {
+    console.log(error);
   })
 }
