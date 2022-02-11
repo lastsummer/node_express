@@ -50,8 +50,11 @@ function validateIdNumberToAgeYear(str) {
     birdthdayArr = str.split('/');
     year = birdthdayArr[0];
   }
-  if (birdthdayArr.length == 1) {
+  if (birdthdayArr.length == 1) { // excel 預設日期格式
     year = formatDate(str);
+  }
+  if(year>currentYear){
+    year = (str.substr(0, str.length-4))*1 + 1911 
   }
   return currentYear - year;
 }
@@ -368,12 +371,36 @@ async function changeColor(fileName){
           }
           if(cell.columnNumber()>=5 && cell.columnNumber()<=18 && cell.rowNumber()>=2 && cell.value()){
             style.fill = 'ffff00'
+          }else if(cell.rowNumber()==1){
+            style.fill = 'fffacd'
+          }
+
+          // 255 250 205
+          cell.style(style)
+        });
+      });
+
+      // 心力量表
+      const sheetHeart = workbook.sheet('心力評量表');
+      sheetHeart.column("A").width(15)
+      sheetHeart.column("B").width(11)
+      sheetHeart.column("P").width(30)
+      const rowsHeart = sheetHeart._rows;
+      rowsHeart.forEach((row) => {
+        row._cells.forEach((cell) => {
+          let style = {
+            horizontalAlignment: 'center'
+          }
+          if(cell.rowNumber()==1){
+            style.fill = 'fffacd'
           }
           cell.style(style)
         });
       });
+
       workbook.toFileAsync(`result/${fileName}.xlsx`);
       resolve(fileName)
+
     })
     .catch((error) => {
       console.log(error);
