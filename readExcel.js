@@ -59,6 +59,10 @@ function validateIdNumberToAgeYear(str) {
   return currentYear - year;
 }
 async function parserHeartExcel(filename) {
+
+  const file = await getFile(`idTOdepart.json`)
+  const idData = JSON.parse(file);
+  
   const excel = xlsx.readFile(filename);
   var xlData = xlsx.utils.sheet_to_json(excel.Sheets['全聯實業股份有限公司總表資料']);
   let arrayList = [];
@@ -191,6 +195,9 @@ async function parserHeartExcel(filename) {
     arrayList.push({
       身份證字號: user['身份證字號'],
       姓名: user['中文姓名'],
+      上兩層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].two: '',
+      上一層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].one: '',
+      部門名稱: idData[user['身份證字號']]? idData[user['身份證字號']].depart: '',
       性別: sex,
       年齡: age,
       年齡分數: ageScore,
@@ -216,15 +223,12 @@ module.exports.parserExcel = async function parserExcel(filename) {
   const file = await getFile(`idTOdepart.json`)
   const idData = JSON.parse(file);
 
-
   const excel = xlsx.readFile(filename);
   var xlData = xlsx.utils.sheet_to_json(excel.Sheets['全聯實業股份有限公司總表資料']);
   let arrayList = [];
+  let weightArrayList = [];
 
   xlData.forEach((user) => {
-    const dataArray = Object.keys(user).map((key) => {
-      return user[key];
-    });
     let incompatible = {
       body: '',
       sbp: '',
@@ -313,29 +317,53 @@ module.exports.parserExcel = async function parserExcel(filename) {
       incompatible.glucose = user['空腹血糖']
     }
 
-    if (incompatible !== '')
-      arrayList.push({
-        身份證字號: user['身份證字號'],
-        姓名: user['中文姓名'],
-        上兩層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].two: '',
-        上一層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].one: '',
-        部門名稱: idData[user['身份證字號']]? idData[user['身份證字號']].depart: '',
-        身體質量指數: incompatible.body,
-        收縮壓: incompatible.sbp,
-        舒張壓: incompatible.dbp,
-        腰圍: incompatible.waistline,
-        尿蛋白: incompatible.proteinuria,
-        白血球: incompatible.leukocyte,
-        血色素: incompatible.hemoglobin,
-        "丙氨酸轉氨脢 ALT": incompatible.alt,
-        肌酸酐: incompatible.creatinine,
-        總膽固醇: incompatible.cholesterol,
-        三酸甘油脂: incompatible.triglycerides,
-        "高密度-脂蛋白": incompatible.HDLC,
-        "低密度-脂蛋白": incompatible.LDLC,
-        空腹血糖: incompatible.glucose,
-        符合項目: count,
-      });
+    let weight = ""
+    if(user['身體質量指數']>=35){
+      weight = "重度肥胖"
+    }else if(user['身體質量指數']>=30){
+      weight = "中度肥胖"
+    }else if(user['身體質量指數']>=27){
+      weight = "輕度肥胖"
+    }else if(user['身體質量指數']>=24){
+      weight = "過重"
+    }else if(user['身體質量指數']>=18.5){
+      weight = "正常"
+    }else{
+      weight = "體重過輕"
+    }
+
+    weightArrayList.push({
+      身份證字號: user['身份證字號'],
+      姓名: user['中文姓名'],
+      上兩層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].two: '',
+      上一層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].one: '',
+      部門名稱: idData[user['身份證字號']]? idData[user['身份證字號']].depart: '',
+      身體質量指數: user['身體質量指數'],
+      重量: weight
+    })
+
+    arrayList.push({
+      身份證字號: user['身份證字號'],
+      姓名: user['中文姓名'],
+      上兩層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].two: '',
+      上一層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].one: '',
+      部門名稱: idData[user['身份證字號']]? idData[user['身份證字號']].depart: '',
+      身體質量指數: incompatible.body,
+      收縮壓: incompatible.sbp,
+      舒張壓: incompatible.dbp,
+      腰圍: incompatible.waistline,
+      尿蛋白: incompatible.proteinuria,
+      白血球: incompatible.leukocyte,
+      血色素: incompatible.hemoglobin,
+      "丙氨酸轉氨脢 ALT": incompatible.alt,
+      肌酸酐: incompatible.creatinine,
+      總膽固醇: incompatible.cholesterol,
+      三酸甘油脂: incompatible.triglycerides,
+      "高密度-脂蛋白": incompatible.HDLC,
+      "低密度-脂蛋白": incompatible.LDLC,
+      空腹血糖: incompatible.glucose,
+      符合項目: count,
+    });
   });
   const ws = xlsx.utils.json_to_sheet(arrayList);
   xlsx.utils.book_append_sheet(excel, ws, '4級列表');
@@ -343,6 +371,9 @@ module.exports.parserExcel = async function parserExcel(filename) {
   const heartArrayList = await parserHeartExcel(filename);
   const heartWs = xlsx.utils.json_to_sheet(heartArrayList);
   xlsx.utils.book_append_sheet(excel, heartWs, '心力評量表');
+
+  const weightWs = xlsx.utils.json_to_sheet(weightArrayList);
+  xlsx.utils.book_append_sheet(excel, weightWs, '重量');
 
   const id = crypto.randomBytes(20).toString('hex');
   xlsx.writeFile(excel, `result/${id}.xlsx`);
@@ -387,7 +418,10 @@ async function changeColor(fileName){
       const sheetHeart = workbook.sheet('心力評量表');
       sheetHeart.column("A").width(15)
       sheetHeart.column("B").width(11)
-      sheetHeart.column("P").width(30)
+      sheetHeart.column("C").width(20)
+      sheetHeart.column("D").width(20)
+      sheetHeart.column("E").width(20)
+      sheetHeart.column("S").width(30)
       const rowsHeart = sheetHeart._rows;
       rowsHeart.forEach((row) => {
         row._cells.forEach((cell) => {
@@ -396,6 +430,28 @@ async function changeColor(fileName){
           }
           if(cell.rowNumber()==1){
             style.fill = 'fffacd'
+          }
+          cell.style(style)
+        });
+      });
+
+      // 重量
+      const sheetWeight = workbook.sheet('重量');
+      sheetWeight.column("A").width(15)
+      sheetWeight.column("B").width(11)
+      sheetWeight.column("C").width(20)
+      sheetWeight.column("D").width(20)
+      sheetWeight.column("E").width(20)
+      const rowsWeight = sheetWeight._rows;
+      rowsWeight.forEach((row) => {
+        row._cells.forEach((cell) => {
+          let style = {
+            horizontalAlignment: 'center'
+          }
+          if(cell.rowNumber()==1){
+            style.fill = 'fffacd'
+          }else if(cell.columnNumber()>=7 && cell.value()!="正常"){
+            style.fill = 'ffff00'
           }
           cell.style(style)
         });
