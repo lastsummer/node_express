@@ -244,7 +244,7 @@
           reportHtml = reportHtml + createProcessBar(singleDate.time)
           reportHtml = reportHtml + `</td>`;
         }else{
-          reportHtml = reportHtml + `<td></td>`;
+          reportHtml = reportHtml + `<td class="timeProgress"></td>`;
         }
         reportHtml = reportHtml + `<td year="${response.currentYear}" day="${singleDate.day}" month="${response.currentMonth}"`;
         reportHtml = reportHtml + `start="${singleDate.start}" end="${singleDate.end}" >`;
