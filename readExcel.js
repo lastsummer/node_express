@@ -318,6 +318,7 @@ module.exports.parserExcel = async function parserExcel(filename) {
         身份證字號: user['身份證字號'],
         姓名: user['中文姓名'],
         上兩層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].two: '',
+        上一層組織中文名稱: idData[user['身份證字號']]? idData[user['身份證字號']].one: '',
         部門名稱: idData[user['身份證字號']]? idData[user['身份證字號']].depart: '',
         身體質量指數: incompatible.body,
         收縮壓: incompatible.sbp,
@@ -360,16 +361,18 @@ async function changeColor(fileName){
       sheet.column("B").width(11)
       sheet.column("C").width(20)
       sheet.column("D").width(20)
-      sheet.column("E").width(15)
-      sheet.column("N").width(15)
-      sheet.column("O").width(15)
+      sheet.column("E").width(20)
+      sheet.column("F").width(15)
+      sheet.column("M").width(15)
+      sheet.column("Q").width(15)
+      sheet.column("R").width(15)
       const rows = sheet._rows;
       rows.forEach((row) => {
         row._cells.forEach((cell) => {
           let style = {
             horizontalAlignment: 'center'
           }
-          if(cell.columnNumber()>=5 && cell.columnNumber()<=18 && cell.rowNumber()>=2 && cell.value()){
+          if(cell.columnNumber()>=6 && cell.columnNumber()<=19 && cell.rowNumber()>=2 && cell.value()){
             style.fill = 'ffff00'
           }else if(cell.rowNumber()==1){
             style.fill = 'fffacd'
@@ -416,13 +419,26 @@ module.exports.parserIDExcel = async function parserIDExcel(filename) {
   const excel = xlsx.readFile(filename);
   var xlData = xlsx.utils.sheet_to_json(excel.Sheets['工作表1']);
   let arrayList = {};
+  let workArrayList = {};
   xlData.forEach((user) => {
     arrayList[user['證件號碼']] = {
       depart: user['部門名稱'],
-      two: user['上兩層組織中文名稱']
+      departNo: user['歸屬組織代碼'],
+      two: user['上兩層組織中文名稱'],
+      one: user['上一層組織中文名稱']
+    }
+    workArrayList[user['工號']] = {
+      depart: user['部門名稱'],
+      departNo: user['歸屬組織代碼'],
+      two: user['上兩層組織中文名稱'],
+      one: user['上一層組織中文名稱']
     }
   })
   fs.writeFile('idTOdepart.json', JSON.stringify(arrayList), (error)=>{
+    if(error) console.log(error)
+    else console.log('success')
+  })
+  fs.writeFile('workIdTOdepart.json', JSON.stringify(workArrayList), (error)=>{
     if(error) console.log(error)
     else console.log('success')
   })
