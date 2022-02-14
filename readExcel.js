@@ -534,12 +534,11 @@ function checkIDCorrect(str){
   return result
 }
 
-
-function getDepartList(dataList, idData){
+function getPressSumCount(dataList, column){
   let tpmResult = {}
   for (let i of dataList) {
-    let departObj = tpmResult[i["部門名稱"]]
-    // 部門名稱
+    let departObj = tpmResult[i[column]]
+
     if(!departObj){
       departObj = {
         countPeople:0,
@@ -561,8 +560,34 @@ function getDepartList(dataList, idData){
     else if(i["高血壓等級"]=="第二期") departObj.second = departObj.second + 1;
     else if(i["高血壓等級"]=="高血壓危象") departObj.third = departObj.third + 1;
 
-    tpmResult[i["部門名稱"]] = departObj
+    tpmResult[i[column]] = departObj
   }
+  return tpmResult
+}
+
+function getPressExcelOutput(sunCount, totalPeople){
+  let result = {}
+  let noCount = totalPeople - sunCount.countPeople
+  let unNormal = sunCount.early + sunCount.first + sunCount.second + sunCount.third
+  result = {
+    測量人數: sunCount.countPeople,
+    未測量: noCount,
+    未測量率: (Math.round(noCount / totalPeople * 10000) / 100.00) + "%",
+    "測量次數<8": sunCount.lessThanPeople,
+    總量測次數: sunCount.totalCount,
+    平均測量次數: (Math.round(sunCount.totalCount / sunCount.countPeople * 10) / 10.00) + "次" ,
+    正常: sunCount.normal,
+    血壓異常率: (Math.round(unNormal/sunCount.countPeople * 10000) / 100.00) + "%",
+    高血壓前期: sunCount.early,
+    第一期: sunCount.first,
+    第二期: sunCount.second,
+    高血壓危象: sunCount.third
+  }
+  return result
+}
+
+function getDepartList(dataList, idData){
+  let tpmResult = getPressSumCount(dataList, "部門名稱")
 
   let result = []
   for (let i in tpmResult) {
@@ -580,8 +605,7 @@ function getDepartList(dataList, idData){
     }
 
     if(totalPeople!=0){
-      let noCount = totalPeople - tpmResult[i].countPeople
-      let unNormal = tpmResult[i].early + tpmResult[i].first + tpmResult[i].second + tpmResult[i].third
+      const excelOutput = getPressExcelOutput(tpmResult[i], totalPeople)
   
       result.push({
         處: two,
@@ -589,27 +613,64 @@ function getDepartList(dataList, idData){
         代碼: departNo,
         部門名稱: i,
         總人數: totalPeople,
-        測量人數: tpmResult[i].countPeople,
-        未測量: noCount,
-        未測量率: (Math.round(noCount / totalPeople * 10000) / 100.00) + "%",
-        "測量次數<8": tpmResult[i].lessThanPeople,
-        總量測次數: tpmResult[i].totalCount,
-        平均測量次數: (Math.round(tpmResult[i].totalCount / tpmResult[i].countPeople * 10) / 10.00) + "次" ,
-        正常: tpmResult[i].normal,
-        血壓異常率: (Math.round(unNormal/tpmResult[i].countPeople * 10000) / 100.00) + "%",
-        高血壓前期: tpmResult[i].early,
-        第一期: tpmResult[i].first,
-        第二期: tpmResult[i].second,
-        高血壓危象: tpmResult[i].third
+        ...excelOutput
       })
     }
-
-    
-
   }
-
   return result
+}
 
+function getOneList(dataList, idData){
+  let tpmResult = getPressSumCount(dataList, "上一層組織中文名稱")
+
+  let result = []
+  for (let i in tpmResult) {
+    let two = ""
+    let totalPeople = 0
+    for (let id in idData) {
+      if(idData[id].one == i){
+        two = idData[id].two
+        totalPeople = totalPeople + 1
+      } 
+    }
+
+    if(totalPeople!=0){
+      const excelOutput = getPressExcelOutput(tpmResult[i], totalPeople)
+  
+      result.push({
+        處: two,
+        區: i,
+        總人數: totalPeople,
+        ...excelOutput
+      })
+    }
+  }
+  return result
+}
+
+function getTwoList(dataList, idData){
+  let tpmResult = getPressSumCount(dataList, "上兩層組織中文名稱")
+
+  let result = []
+  for (let i in tpmResult) {
+    let totalPeople = 0
+    for (let id in idData) {
+      if(idData[id].two == i){
+        totalPeople = totalPeople + 1
+      } 
+    }
+
+    if(totalPeople!=0){
+      const excelOutput = getPressExcelOutput(tpmResult[i], totalPeople)
+  
+      result.push({
+        處: i,
+        總人數: totalPeople,
+        ...excelOutput
+      })
+    }
+  }
+  return result
 }
 
 module.exports.parserPressExcel = async function parserPressExcel(filename) {
@@ -689,9 +750,20 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
   // var workbook = xlsx.utils.book_new()
   xlsx.utils.book_append_sheet(excel, ws, '血壓統計');
 
+  // 處
+  const twoWs = xlsx.utils.json_to_sheet(getTwoList(result, idData))
+  xlsx.utils.book_append_sheet(excel, twoWs, '處');
+
+  // 區
+  const oneWs = xlsx.utils.json_to_sheet(getOneList(result, idData))
+  xlsx.utils.book_append_sheet(excel, oneWs, '區');
+
   // 店
   const departWs = xlsx.utils.json_to_sheet(getDepartList(result, idData))
   xlsx.utils.book_append_sheet(excel, departWs, '店');
+
+  
+  
 
   const id = crypto.randomBytes(20).toString('hex');
   xlsx.writeFile(excel, `result/${id}.xlsx`);
@@ -721,7 +793,39 @@ async function changePressColor(fileName){
           if(cell.rowNumber()==1){
             style.fill = 'fffacd'
           }
+          cell.style(style)
+        });
+      });
 
+      const twoSheet = workbook.sheet('處');
+      twoSheet.column("A").width(20)
+      twoSheet.column("H").width(15)
+      const towRows = twoSheet._rows;
+      towRows.forEach((row) => {
+        row._cells.forEach((cell) => {
+          let style = {
+            horizontalAlignment: 'center'
+          }
+          if(cell.rowNumber()==1){
+            style.fill = 'fffacd'
+          }
+          cell.style(style)
+        });
+      });
+
+      const oneSheet = workbook.sheet('區');
+      oneSheet.column("A").width(20)
+      oneSheet.column("B").width(20)
+      oneSheet.column("I").width(15)
+      const oneRows = oneSheet._rows;
+      oneRows.forEach((row) => {
+        row._cells.forEach((cell) => {
+          let style = {
+            horizontalAlignment: 'center'
+          }
+          if(cell.rowNumber()==1){
+            style.fill = 'fffacd'
+          }
           cell.style(style)
         });
       });
@@ -730,7 +834,8 @@ async function changePressColor(fileName){
       departSheet.column("A").width(20)
       departSheet.column("B").width(20)
       departSheet.column("C").width(15)
-      departSheet.column("D").width(20)
+      departSheet.column("D").width(25)
+      departSheet.column("K").width(15)
       const departRows = departSheet._rows;
       departRows.forEach((row) => {
         row._cells.forEach((cell) => {
@@ -740,7 +845,6 @@ async function changePressColor(fileName){
           if(cell.rowNumber()==1){
             style.fill = 'fffacd'
           }
-
           cell.style(style)
         });
       });
