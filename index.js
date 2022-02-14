@@ -30,12 +30,19 @@ app.post('/import/UploadID', upload.single('uploadExcelID'), async function(req,
   res.json("ok")
 })
 
+app.post('/import/UploadPress', upload.single('uploadExcelPress'), async function(req, res){
+  console.log(req.file);
+  const fileName = await readExcel.parserPressExcel(req.file.path)
+  res.json({fileName})
+})
 
 
 app.get('/download/:filename', function(req, res){
   const file = `./result/${req.params.filename}`;
   res.download(file);
 });
+
+
 app.get('/wang', function(req, res){
   res.render('wangLogin')
 })
