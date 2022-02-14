@@ -534,6 +534,84 @@ function checkIDCorrect(str){
   return result
 }
 
+
+function getDepartList(dataList, idData){
+  let tpmResult = {}
+  for (let i of dataList) {
+    let departObj = tpmResult[i["部門名稱"]]
+    // 部門名稱
+    if(!departObj){
+      departObj = {
+        countPeople:0,
+        lessThanPeople:0,
+        totalCount: 0,
+        normal: 0,
+        early: 0,
+        first: 0,
+        second: 0,
+        third: 0
+      }
+    }
+    departObj.countPeople = departObj.countPeople + 1;
+    if(i["測量次數"]<8) departObj.lessThanPeople = departObj.lessThanPeople + 1;
+    departObj.totalCount = departObj.totalCount + (i["測量次數"])*1;
+    if(i["高血壓等級"]=="正常") departObj.normal = departObj.normal + 1;
+    else if(i["高血壓等級"]=="高血壓前期") departObj.early = departObj.early + 1;
+    else if(i["高血壓等級"]=="第一期") departObj.first = departObj.first + 1;
+    else if(i["高血壓等級"]=="第二期") departObj.second = departObj.second + 1;
+    else if(i["高血壓等級"]=="高血壓危象") departObj.third = departObj.third + 1;
+
+    tpmResult[i["部門名稱"]] = departObj
+  }
+
+  let result = []
+  for (let i in tpmResult) {
+    let two = ""
+    let one = ""
+    let departNo = ""
+    let totalPeople = 0
+    for (let id in idData) {
+      if(idData[id].depart == i){
+        two = idData[id].two
+        one = idData[id].one
+        departNo = idData[id].departNo
+        totalPeople = totalPeople + 1
+      } 
+    }
+
+    if(totalPeople!=0){
+      let noCount = totalPeople - tpmResult[i].countPeople
+      let unNormal = tpmResult[i].early + tpmResult[i].first + tpmResult[i].second + tpmResult[i].third
+  
+      result.push({
+        處: two,
+        區: one,
+        代碼: departNo,
+        部門名稱: i,
+        總人數: totalPeople,
+        測量人數: tpmResult[i].countPeople,
+        未測量: noCount,
+        未測量率: (Math.round(noCount / totalPeople * 10000) / 100.00) + "%",
+        "測量次數<8": tpmResult[i].lessThanPeople,
+        總量測次數: tpmResult[i].totalCount,
+        平均測量次數: (Math.round(tpmResult[i].totalCount / tpmResult[i].countPeople * 10) / 10.00) + "次" ,
+        正常: tpmResult[i].normal,
+        血壓異常率: (Math.round(unNormal/tpmResult[i].countPeople * 10000) / 100.00) + "%",
+        高血壓前期: tpmResult[i].early,
+        第一期: tpmResult[i].first,
+        第二期: tpmResult[i].second,
+        高血壓危象: tpmResult[i].third
+      })
+    }
+
+    
+
+  }
+
+  return result
+
+}
+
 module.exports.parserPressExcel = async function parserPressExcel(filename) {
 
   const file = await getFile(`workIdTOdepart.json`)
@@ -572,26 +650,23 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
     const dbp = (user['舒張壓'])*1
     const pulse = (user['脈搏'])*1
     if(sbp && dbp && pulse){
-      
       const count = arrayList[workId] ? (arrayList[workId].count)*1 + 1 : 1
       const averageSbp = arrayList[workId] ? ((arrayList[workId].averageSbp)*1 + sbp) : sbp
       const averageDbp = arrayList[workId] ? ((arrayList[workId].averageDbp)*1 + dbp) : dbp
       const averagePulse = arrayList[workId] ? ((arrayList[workId].averagePulse)*1 + pulse) : pulse
-      const pressObj = { 
-        count, averageSbp, averageDbp, averagePulse, nameCount, memo, name }
+      const pressObj = { count, averageSbp, averageDbp, averagePulse, nameCount, memo, name }
       arrayList[workId] = {...pressObj}
     }
-    
   })
 
   let result = []
   for (let i in arrayList) {
-    if(arrayList[i].averageSbp>=180) arrayList[i].desc = "高血壓危象"
-    else if(arrayList[i].averageSbp>=160) arrayList[i].desc = "第二期"
-    else if(arrayList[i].averageSbp>=140) arrayList[i].desc = "第一期"
-    else if(arrayList[i].averageSbp>=120) arrayList[i].desc = "高血壓前期"
+    let averageSbp = Math.round(arrayList[i].averageSbp/ arrayList[i].count)
+    if(averageSbp>=180) arrayList[i].desc = "高血壓危象"
+    else if(averageSbp>=160) arrayList[i].desc = "第二期"
+    else if(averageSbp>=140) arrayList[i].desc = "第一期"
+    else if(averageSbp>=120) arrayList[i].desc = "高血壓前期"
     else arrayList[i].desc = "正常"
-
     result.push({
       上兩層組織中文名稱: idData[i]? idData[i].two: '',
       上一層組織中文名稱: idData[i]? idData[i].one: '',
@@ -606,12 +681,17 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
       高血壓等級: arrayList[i].desc,
       備註: arrayList[i].nameCount>=2 ? arrayList[i].memo : ''
     })
-
   }
+
+  
 
   const ws = xlsx.utils.json_to_sheet(result);
   // var workbook = xlsx.utils.book_new()
   xlsx.utils.book_append_sheet(excel, ws, '血壓統計');
+
+  // 店
+  const departWs = xlsx.utils.json_to_sheet(getDepartList(result, idData))
+  xlsx.utils.book_append_sheet(excel, departWs, '店');
 
   const id = crypto.randomBytes(20).toString('hex');
   xlsx.writeFile(excel, `result/${id}.xlsx`);
@@ -631,9 +711,28 @@ async function changePressColor(fileName){
       sheet.column("D").width(20)
       sheet.column("E").width(11)
       sheet.column("F").width(11)
-      sheet.column("A").width(30)
+      sheet.column("L").width(30)
       const rows = sheet._rows;
       rows.forEach((row) => {
+        row._cells.forEach((cell) => {
+          let style = {
+            horizontalAlignment: 'center'
+          }
+          if(cell.rowNumber()==1){
+            style.fill = 'fffacd'
+          }
+
+          cell.style(style)
+        });
+      });
+
+      const departSheet = workbook.sheet('店');
+      departSheet.column("A").width(20)
+      departSheet.column("B").width(20)
+      departSheet.column("C").width(15)
+      departSheet.column("D").width(20)
+      const departRows = departSheet._rows;
+      departRows.forEach((row) => {
         row._cells.forEach((cell) => {
           let style = {
             horizontalAlignment: 'center'
