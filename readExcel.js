@@ -519,10 +519,17 @@ function addSevenZero(str){
   return str
 }
 
+function reduceSevenZero(str){
+  if(str.length>=8){
+    if(str.substr(0, str.length-7)*1==0) return  str.substr(str.length-8, 7)
+  }
+  return str
+}
+
 function checkIDCorrect(str){
   let result = true;
   if(str.length>=8){
-    if(str.substr(0, str.length-7)*1!=0) result = false
+    result = false
   }
   return result
 }
@@ -536,19 +543,42 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
   var xlData = xlsx.utils.sheet_to_json(excel.Sheets['表單回應 1']);
   let arrayList = {};
   xlData.forEach((user) => {
-    const workId = addSevenZero(user['員工工號-7碼(若不足7碼，請前面補打【0】數字)']+"")
-    const isIDCorrect = checkIDCorrect(workId)
+    const originWorkId = user['員工工號-7碼(若不足7碼，請前面補打【0】數字)']
+    let name = user['姓名(全名)']
+    let workId = addSevenZero(originWorkId+"")
+    workId = reduceSevenZero(workId)
+    let memo = ""
+    // const isIDCorrect = checkIDCorrect(workId)
+    let nameCount = 0
+    if(!idData[workId]){
+      let nameWorkId = ""
+      for (let id in idData) {
+        if(idData[id].name == name){
+          nameCount = nameCount+1
+          nameWorkId = id
+          memo = memo + "、" + id
+        } 
+      }
+      if(nameCount>=2){
+        workId = originWorkId
+      }else{
+        workId = nameWorkId
+      } 
+    }else{
+      name = idData[workId].name
+    }
+    
     const sbp = (user['收縮壓'])*1
     const dbp = (user['舒張壓'])*1
     const pulse = (user['脈搏'])*1
-    if(isIDCorrect && sbp && dbp && pulse){
+    if(sbp && dbp && pulse){
       
       const count = arrayList[workId] ? (arrayList[workId].count)*1 + 1 : 1
       const averageSbp = arrayList[workId] ? ((arrayList[workId].averageSbp)*1 + sbp) : sbp
       const averageDbp = arrayList[workId] ? ((arrayList[workId].averageDbp)*1 + dbp) : dbp
       const averagePulse = arrayList[workId] ? ((arrayList[workId].averagePulse)*1 + pulse) : pulse
       const pressObj = { 
-        count, averageSbp, averageDbp, averagePulse }
+        count, averageSbp, averageDbp, averagePulse, nameCount, memo, name }
       arrayList[workId] = {...pressObj}
     }
     
@@ -568,12 +598,13 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
       代碼: idData[i]? idData[i].departNo: '',
       部門名稱: idData[i]? idData[i].depart: '',
       工號: i,
-      姓名:idData[i]? idData[i].name: '',
+      姓名: arrayList[i].name,
       平均收縮壓: Math.round(arrayList[i].averageSbp/ arrayList[i].count),
       平均舒張壓: Math.round(arrayList[i].averageDbp/ arrayList[i].count),
       平均脈搏: Math.round(arrayList[i].averagePulse/ arrayList[i].count),
       測量次數: arrayList[i].count,
-      高血壓等級: arrayList[i].desc
+      高血壓等級: arrayList[i].desc,
+      備註: arrayList[i].nameCount>=2 ? arrayList[i].memo : ''
     })
 
   }
@@ -600,6 +631,7 @@ async function changePressColor(fileName){
       sheet.column("D").width(20)
       sheet.column("E").width(11)
       sheet.column("F").width(11)
+      sheet.column("A").width(30)
       const rows = sheet._rows;
       rows.forEach((row) => {
         row._cells.forEach((cell) => {
