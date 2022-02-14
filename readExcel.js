@@ -682,13 +682,20 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
   var xlData = xlsx.utils.sheet_to_json(excel.Sheets['表單回應 1']);
   let arrayList = {};
   xlData.forEach((user) => {
+
     const originWorkId = user['員工工號-7碼(若不足7碼，請前面補打【0】數字)']
     let name = user['姓名(全名)']
+    let departName = user['請點選所在門市'] || user['請點選所在門市_2'] || user['請點選所在門市_3']
+                   || user['請點選所在門市_4'] || user['請點選所在門市_5'] || user['請點選所在門市_6']
+                   || user['請點選所在門市_7'] || user['請點選所在門市_8'] || user['請點選所在門市_9']
+                   || user['請點選所在門市_10'] || user['請點選所在門市_11'] || user['請點選所在門市_12']
+                   || user['請點選所在門市_13'] || user['請點選所在門市_1']
     let workId = addSevenZero(originWorkId+"")
     workId = reduceSevenZero(workId)
     let memo = ""
     // const isIDCorrect = checkIDCorrect(workId)
     let nameCount = 0
+    let departCount = 0
     if(!idData[workId]){
       let nameWorkId = ""
       for (let id in idData) {
@@ -699,7 +706,20 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
         } 
       }
       if(nameCount>=2){
-        workId = originWorkId
+        let departWorkId = ""
+        if(departName){
+          for (let id in idData) {
+            if(idData[id].name == name && idData[id].depart.indexOf(departName.substr(2, departName.length-2))>0 ){
+              departCount = departCount+1
+              departWorkId = id
+            } 
+          }
+        }
+        if(departCount==1){
+          workId = departWorkId
+        }else{
+          workId = originWorkId
+        }
       }else{
         workId = nameWorkId
       } 
@@ -715,7 +735,7 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
       const averageSbp = arrayList[workId] ? ((arrayList[workId].averageSbp)*1 + sbp) : sbp
       const averageDbp = arrayList[workId] ? ((arrayList[workId].averageDbp)*1 + dbp) : dbp
       const averagePulse = arrayList[workId] ? ((arrayList[workId].averagePulse)*1 + pulse) : pulse
-      const pressObj = { count, averageSbp, averageDbp, averagePulse, nameCount, memo, name }
+      const pressObj = { count, averageSbp, averageDbp, averagePulse, nameCount, memo, name, departCount }
       arrayList[workId] = {...pressObj}
     }
   })
@@ -740,13 +760,39 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
       平均脈搏: Math.round(arrayList[i].averagePulse/ arrayList[i].count),
       測量次數: arrayList[i].count,
       高血壓等級: arrayList[i].desc,
-      備註: arrayList[i].nameCount>=2 ? arrayList[i].memo : ''
+      備註: (arrayList[i].nameCount>=2 && arrayList[i].departCount!=1) ? arrayList[i].memo : ''
     })
   }
 
-  
+  // 血壓統計 需要加上沒有測量的人
+  let existDepart = {}
+  for (let i of result) {
+    existDepart[i["代碼"]] = i["部門名稱"]
+  }
+  let pressResult = [...result]
+  for (let id in idData) {
+    if(existDepart[idData[id].departNo]){
+      let isExist = false
+      for (let i of result) {
+        if(i["工號"]==id) isExist = true
+      }
+      if(!isExist){
+        pressResult.push(
+          {
+            上兩層組織中文名稱: idData[id].two,
+            上一層組織中文名稱: idData[id].one,
+            代碼: idData[id].departNo,
+            部門名稱: idData[id].depart,
+            工號: id+"",
+            姓名: idData[id].name
+          }
+        )
+      }
+    }
+  }
 
-  const ws = xlsx.utils.json_to_sheet(result);
+
+  const ws = xlsx.utils.json_to_sheet(pressResult);
   // var workbook = xlsx.utils.book_new()
   xlsx.utils.book_append_sheet(excel, ws, '血壓統計');
 
@@ -761,9 +807,6 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
   // 店
   const departWs = xlsx.utils.json_to_sheet(getDepartList(result, idData))
   xlsx.utils.book_append_sheet(excel, departWs, '店');
-
-  
-  
 
   const id = crypto.randomBytes(20).toString('hex');
   xlsx.writeFile(excel, `result/${id}.xlsx`);
