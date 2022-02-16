@@ -1,6 +1,8 @@
 const express = require('express');
 const multer  = require('multer');
 const readExcel = require('./readExcel')
+const idExcel = require('./service/idExcel')
+const pressExcel = require('./service/pressExcel')
 const wang = require('./wang')
 
 let app = express();
@@ -12,13 +14,23 @@ const upload = multer({ dest: 'uploads/' })
 app.get('/', function (req, res) {
     res.send('Hello')
 })
+
+// 上傳excel 頁面
+
 app.get('/upload', function(req, res){
   res.render('upload')
 })
 app.get('/upload/id', function(req, res){
   res.render('uploadID')
 })
+app.get('/upload/monthID/:month', function(req, res){
+  res.render('uploadMonthID',{month:req.params.month})
+})
+app.get('/upload/press/:month', function(req, res){
+  res.render('uploadMonthPress',{month:req.params.month})
+})
 
+// 上傳excel api
 app.post('/import/Upload4', upload.single('uploadExcel4'), async function(req, res){
   console.log(req.file);
   const fileName = await readExcel.parserExcel(req.file.path)
@@ -26,22 +38,36 @@ app.post('/import/Upload4', upload.single('uploadExcel4'), async function(req, r
 })
 
 app.post('/import/UploadID', upload.single('uploadExcelID'), async function(req, res){
-  await readExcel.parserIDExcel(req.file.path)
+  await idExcel.parserIDExcel(req.file.path)
+  res.json("ok")
+})
+
+app.post('/import/UploadMonthID/:month', upload.single('uploadExcelMonthID'), async function(req, res){
+  console.log(req.file)
+  await idExcel.parserMonthIDExcel(req.file.path, req.params.month)
   res.json("ok")
 })
 
 app.post('/import/UploadPress', upload.single('uploadExcelPress'), async function(req, res){
   console.log(req.file);
-  const fileName = await readExcel.parserPressExcel(req.file.path)
+  const fileName = await pressExcel.parserPressExcel(req.file.path, '')
   res.json({fileName})
 })
 
+app.post('/import/UploadMonthPress/:month', upload.single('uploadExcelMonthPress'), async function(req, res){
+  console.log(req.file);
+  const fileName = await pressExcel.parserPressExcel(req.file.path, req.params.month)
+  res.json({fileName})
+})
+
+// 下載excel
 
 app.get('/download/:filename', function(req, res){
   const file = `./result/${req.params.filename}`;
   res.download(file);
 });
 
+// ------------------------------- 王俊皓
 
 app.get('/wang', function(req, res){
   res.render('wangLogin')
