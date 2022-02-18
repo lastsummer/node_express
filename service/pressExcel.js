@@ -262,12 +262,18 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
     const sbp = (user['收縮壓'])*1
     const dbp = (user['舒張壓'])*1
     const pulse = (user['脈搏'])*1
-    if(sbp && dbp && pulse){
+    const workName = user['職稱']
+    const workArea = user['工作區域 ']
+    if(sbp && sbp<=280 && sbp>=60
+      && dbp && dbp<=200 && dbp>=30
+      && pulse){
       const count = arrayList[workId] ? (arrayList[workId].count)*1 + 1 : 1
       const averageSbp = arrayList[workId] ? ((arrayList[workId].averageSbp)*1 + sbp) : sbp
       const averageDbp = arrayList[workId] ? ((arrayList[workId].averageDbp)*1 + dbp) : dbp
       const averagePulse = arrayList[workId] ? ((arrayList[workId].averagePulse)*1 + pulse) : pulse
-      const pressObj = { count, averageSbp, averageDbp, averagePulse, nameCount, memo, name, departCount }
+      const pressObj = { count, averageSbp, averageDbp, 
+        averagePulse, nameCount, memo, 
+        name, departCount, workName, workArea }
       arrayList[workId] = {...pressObj}
     }
   })
@@ -287,6 +293,8 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
       部門名稱: idData[i]? idData[i].depart: '',
       工號: i,
       姓名: arrayList[i].name,
+      職稱: arrayList[i].workName,
+      工作區域: arrayList[i].workArea,
       平均收縮壓: Math.round(arrayList[i].averageSbp/ arrayList[i].count),
       平均舒張壓: Math.round(arrayList[i].averageDbp/ arrayList[i].count),
       平均脈搏: Math.round(arrayList[i].averagePulse/ arrayList[i].count),
