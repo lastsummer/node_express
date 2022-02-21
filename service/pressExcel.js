@@ -78,7 +78,16 @@ function getPressSumCount(dataList, column){
         early: 0,
         first: 0,
         second: 0,
-        third: 0
+        third: 0,
+        four: {
+          countPeople:0,
+          totalCount: 0,
+          normal: 0,
+          early: 0,
+          first: 0,
+          second: 0,
+          third: 0,
+        }
       }
     }
     departObj.countPeople = departObj.countPeople + 1;
@@ -89,6 +98,15 @@ function getPressSumCount(dataList, column){
     else if(i["高血壓等級"]=="第一期") departObj.first = departObj.first + 1;
     else if(i["高血壓等級"]=="第二期") departObj.second = departObj.second + 1;
     else if(i["高血壓等級"]=="高血壓危象") departObj.third = departObj.third + 1;
+    if(i["測量次數"]>=4){
+      departObj.four.countPeople = departObj.four.countPeople + 1;
+      departObj.four.totalCount = departObj.four.totalCount + (i["測量次數"])*1;
+      if(i["高血壓等級"]=="正常") departObj.four.normal = departObj.four.normal + 1;
+      else if(i["高血壓等級"]=="高血壓前期") departObj.four.early = departObj.four.early + 1;
+      else if(i["高血壓等級"]=="第一期") departObj.four.first = departObj.four.first + 1;
+      else if(i["高血壓等級"]=="第二期") departObj.four.second = departObj.four.second + 1;
+      else if(i["高血壓等級"]=="高血壓危象") departObj.four.third = departObj.four.third + 1;
+    } 
 
     tpmResult[i[column]] = departObj
   }
@@ -98,7 +116,9 @@ function getPressSumCount(dataList, column){
 function getPressExcelOutput(sunCount, totalPeople){
   let result = {}
   let noCount = totalPeople - sunCount.countPeople
+  let fourNoCount = totalPeople - sunCount.four.countPeople
   let unNormal = sunCount.early + sunCount.first + sunCount.second + sunCount.third
+  let fourUnNormal = sunCount.four.early + sunCount.four.first + sunCount.four.second + sunCount.four.third
   result = {
     測量人數: sunCount.countPeople,
     未測量: noCount,
@@ -112,7 +132,19 @@ function getPressExcelOutput(sunCount, totalPeople){
     高血壓前期: sunCount.early,
     第一期: sunCount.first,
     第二期: sunCount.second,
-    高血壓危象: sunCount.third
+    高血壓危象: sunCount.third,
+    計畫測量人數: sunCount.four.countPeople,
+    計畫未測量人數: fourNoCount,
+    "計畫測量率%": (Math.round(sunCount.four.countPeople / totalPeople * 10000) / 100.00) + "%",
+    "計畫未測量率%": (Math.round(fourNoCount / totalPeople * 10000) / 100.00) + "%",
+    計畫總量測次數: sunCount.four.totalCount,
+    門店平均量測次數: (Math.round(sunCount.four.totalCount / sunCount.four.countPeople * 10) / 10.00) + "次" ,
+    計畫正常: sunCount.four.normal,
+    計畫前期: sunCount.four.early,
+    計畫第一期: sunCount.four.first,
+    計畫第二期: sunCount.four.second,
+    計畫危象: sunCount.four.third,
+    計畫血壓異常率: (Math.round(fourUnNormal/sunCount.four.countPeople * 10000) / 100.00) + "%",
   }
   return result
 }
@@ -271,10 +303,9 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
       const averageSbp = arrayList[workId] ? ((arrayList[workId].averageSbp)*1 + sbp) : sbp
       const averageDbp = arrayList[workId] ? ((arrayList[workId].averageDbp)*1 + dbp) : dbp
       const averagePulse = arrayList[workId] ? ((arrayList[workId].averagePulse)*1 + pulse) : pulse
-      const pressObj = { count, averageSbp, averageDbp, 
+      arrayList[workId] = { count, averageSbp, averageDbp, 
         averagePulse, nameCount, memo, 
         name, departCount, workName, workArea }
-      arrayList[workId] = {...pressObj}
     }
   })
 
@@ -374,7 +405,11 @@ async function changePressColor(fileName){
             horizontalAlignment: 'center'
           }
           if(cell.rowNumber()==1){
-            style.fill = 'fffacd'
+            if(cell.columnNumber()>=7){
+              style.fill = '77DDFF'
+            }else{
+              style.fill = 'fffacd'
+            }
           }
           cell.style(style)
         });
@@ -390,7 +425,11 @@ async function changePressColor(fileName){
             horizontalAlignment: 'center'
           }
           if(cell.rowNumber()==1){
-            style.fill = 'fffacd'
+            if(cell.columnNumber()>=16){
+              style.fill = '77DDFF'
+            }else{
+              style.fill = 'fffacd'
+            }
           }
           cell.style(style)
         });
@@ -407,7 +446,11 @@ async function changePressColor(fileName){
             horizontalAlignment: 'center'
           }
           if(cell.rowNumber()==1){
-            style.fill = 'fffacd'
+            if(cell.columnNumber()>=17){
+              style.fill = '77DDFF'
+            }else{
+              style.fill = 'fffacd'
+            }
           }
           cell.style(style)
         });
@@ -426,7 +469,11 @@ async function changePressColor(fileName){
             horizontalAlignment: 'center'
           }
           if(cell.rowNumber()==1){
-            style.fill = 'fffacd'
+            if(cell.columnNumber()>=19){
+              style.fill = '77DDFF'
+            }else{
+              style.fill = 'fffacd'
+            }
           }
           cell.style(style)
         });
