@@ -26,7 +26,6 @@
     <script src="../../js/jquery-3.6.0.min.js"></script>
 
     <script>
-
       const month = '<%= month %>'
       let uploadFile = function (formName) {
         $('#btn' + formName).prop('disabled', true);
@@ -57,12 +56,11 @@
           },
         });
       };
-
-
       $('#btnUploadMonthPress').on('click', function (event) {
         event.preventDefault();
         uploadFile('UploadMonthPress');
       });
     </script>
   </body>
+
 </html>

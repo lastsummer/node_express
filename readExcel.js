@@ -469,8 +469,3 @@ async function changeColor(fileName){
     console.log(error);
   })
 }
-
-
-
-
-
