@@ -1,0 +1,68 @@
+
+   
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>上傳各個月份人事資料 - <%= month %> 月 </title>
+    <link href="../../css/bootstrap.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <form id="formUploadMonthID">
+      <div class="mb-3">
+        <label for="formFile" class="form-label"><%= month %>月員工資料</label>
+        <input class="form-control" type="file" id="uploadExcelMonthID" name="uploadExcelMonthID" />
+      </div>
+			<div class="spinner-border" role="status" id="loadingUploadMonthID" style="display:none">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+      <div id="resultUploadMonthID"></div>
+      <div>
+				<button type="button" class="btn btn-primary" id="btnUploadMonthID">送出</button>
+			</div>
+		</form>
+    
+
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+
+    <script>
+      const month = '<%= month %>'
+      let uploadFile = function (formName) {
+        $('#btn' + formName).prop('disabled', true);
+        let form = $('#form' + formName)[0];
+        let data = new FormData(form);
+        $('#loading' + formName ).show();
+        $('#result' + formName).html("");
+        $.ajax({
+          type: 'POST',
+          enctype: 'multipart/form-data',
+          url: '/import/' + formName + "/"+ month,
+          data: data,
+          processData: false,
+          contentType: false,
+          cache: false,
+          async: true,
+          timeout: 1000000,
+          success: function (data) {
+						
+            $('#result' + formName).html(data);
+            $('#loading' + formName ).hide();
+            $('#btn' + formName).prop('disabled', false);
+						
+          },
+          error: function (e) {
+            console.log('ERROR : ', e);
+            $('#btn' + formName).prop('disabled', false);
+          },
+        });
+      };
+      $('#btnUploadMonthID').on('click', function (event) {
+        event.preventDefault();
+        uploadFile('UploadMonthID');
+      });
+    </script>
+  </body>
+</html>
