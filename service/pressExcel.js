@@ -405,11 +405,7 @@ async function changePressColor(fileName){
             horizontalAlignment: 'center'
           }
           if(cell.rowNumber()==1){
-            if(cell.columnNumber()>=7){
-              style.fill = '77DDFF'
-            }else{
-              style.fill = 'fffacd'
-            }
+            style.fill = 'fffacd'
           }
           cell.style(style)
         });
