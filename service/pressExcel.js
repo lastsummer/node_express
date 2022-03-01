@@ -117,8 +117,8 @@ function getPressExcelOutput(sunCount, totalPeople){
   let result = {}
   let noCount = totalPeople - sunCount.countPeople
   let fourNoCount = totalPeople - sunCount.four.countPeople
-  let unNormal = sunCount.early + sunCount.first + sunCount.second + sunCount.third
-  let fourUnNormal = sunCount.four.early + sunCount.four.first + sunCount.four.second + sunCount.four.third
+  let unNormal = sunCount.first + sunCount.second + sunCount.third
+  let fourUnNormal = sunCount.four.first + sunCount.four.second + sunCount.four.third
   result = {
     測量人數: sunCount.countPeople,
     未測量: noCount,
