@@ -15,45 +15,58 @@ app.get('/', function (req, res) {
     res.send('Hello')
 })
 
-// 上傳excel 頁面
-
+// ------------------------------------------------ 上傳excel 頁面
+// 血壓 + 心力評量表
 app.get('/upload', function(req, res){
   res.render('upload')
 })
+// 員工資料
 app.get('/upload/id', function(req, res){
   res.render('uploadID')
 })
+// 員工資料(月份)
 app.get('/upload/monthID/:month', function(req, res){
   res.render('uploadMonthID',{month:req.params.month})
 })
+// 血壓(月份)
 app.get('/upload/press/:month', function(req, res){
   res.render('uploadMonthPress',{month:req.params.month})
 })
+// 離職員工資料
+app.get('/upload/removeId', function(req, res){
+  res.render('uploadremoveId')
+})
 
-// 上傳excel api
+// ------------------------------------------------ 上傳excel api
+// 心力評量表
 app.post('/import/Upload4', upload.single('uploadExcel4'), async function(req, res){
   console.log(req.file);
   const fileName = await readExcel.parserExcel(req.file.path)
   res.json({fileName})
 })
-
+// 離職員工資料
+app.post('/import/UploadRemoveId', upload.single('uploadExcelRemoveId'), async function(req, res){
+  await idExcel.parserRemoveIDExcel(req.file.path)
+  res.json("ok")
+})
+// 員工資料
 app.post('/import/UploadID', upload.single('uploadExcelID'), async function(req, res){
   await idExcel.parserIDExcel(req.file.path)
   res.json("ok")
 })
-
+// 員工資料(月份)
 app.post('/import/UploadMonthID/:month', upload.single('uploadExcelMonthID'), async function(req, res){
   console.log(req.file)
   await idExcel.parserMonthIDExcel(req.file.path, req.params.month)
   res.json("ok")
 })
-
+// 血壓
 app.post('/import/UploadPress', upload.single('uploadExcelPress'), async function(req, res){
   console.log(req.file);
   const fileName = await pressExcel.parserPressExcel(req.file.path, '')
   res.json({fileName})
 })
-
+// 血壓(月份)
 app.post('/import/UploadMonthPress/:month', upload.single('uploadExcelMonthPress'), async function(req, res){
   console.log(req.file);
   const fileName = await pressExcel.parserPressExcel(req.file.path, req.params.month)
@@ -61,7 +74,6 @@ app.post('/import/UploadMonthPress/:month', upload.single('uploadExcelMonthPress
 })
 
 // 下載excel
-
 app.get('/download/:filename', function(req, res){
   const file = `./result/${req.params.filename}`;
   res.download(file);

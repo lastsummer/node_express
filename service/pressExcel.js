@@ -1,4 +1,5 @@
 const xlsx = require('xlsx');
+const XLSXStyle = require("xlsx-style");
 const crypto = require('crypto');
 const XlsxPopulate = require('xlsx-populate');
 const fs = require('fs')
@@ -67,48 +68,48 @@ function checkIDCorrect(str){
 function getPressSumCount(dataList, column){
   let tpmResult = {}
   for (let i of dataList) {
-    let departObj = tpmResult[i[column]]
-
-    if(!departObj){
-      departObj = {
-        countPeople:0,
-        lessThanPeople:0,
-        totalCount: 0,
-        normal: 0,
-        early: 0,
-        first: 0,
-        second: 0,
-        third: 0,
-        four: {
+    if(!i["未測量原因"]){
+      let departObj = tpmResult[i[column]]
+      if(!departObj){
+        departObj = {
           countPeople:0,
+          lessThanPeople:0,
           totalCount: 0,
           normal: 0,
           early: 0,
           first: 0,
           second: 0,
           third: 0,
+          four: {
+            countPeople:0,
+            totalCount: 0,
+            normal: 0,
+            early: 0,
+            first: 0,
+            second: 0,
+            third: 0,
+          }
         }
       }
+      departObj.countPeople = departObj.countPeople + 1;
+      if(i["測量次數"]<8) departObj.lessThanPeople = departObj.lessThanPeople + 1;
+      departObj.totalCount = departObj.totalCount + (i["測量次數"])*1;
+      if(i["高血壓等級"]=="正常") departObj.normal = departObj.normal + 1;
+      else if(i["高血壓等級"]=="高血壓前期") departObj.early = departObj.early + 1;
+      else if(i["高血壓等級"]=="第一期") departObj.first = departObj.first + 1;
+      else if(i["高血壓等級"]=="第二期") departObj.second = departObj.second + 1;
+      else if(i["高血壓等級"]=="高血壓危象") departObj.third = departObj.third + 1;
+      if(i["測量次數"]>=4){
+        departObj.four.countPeople = departObj.four.countPeople + 1;
+        departObj.four.totalCount = departObj.four.totalCount + (i["測量次數"])*1;
+        if(i["高血壓等級"]=="正常") departObj.four.normal = departObj.four.normal + 1;
+        else if(i["高血壓等級"]=="高血壓前期") departObj.four.early = departObj.four.early + 1;
+        else if(i["高血壓等級"]=="第一期") departObj.four.first = departObj.four.first + 1;
+        else if(i["高血壓等級"]=="第二期") departObj.four.second = departObj.four.second + 1;
+        else if(i["高血壓等級"]=="高血壓危象") departObj.four.third = departObj.four.third + 1;
+      } 
+      tpmResult[i[column]] = departObj
     }
-    departObj.countPeople = departObj.countPeople + 1;
-    if(i["測量次數"]<8) departObj.lessThanPeople = departObj.lessThanPeople + 1;
-    departObj.totalCount = departObj.totalCount + (i["測量次數"])*1;
-    if(i["高血壓等級"]=="正常") departObj.normal = departObj.normal + 1;
-    else if(i["高血壓等級"]=="高血壓前期") departObj.early = departObj.early + 1;
-    else if(i["高血壓等級"]=="第一期") departObj.first = departObj.first + 1;
-    else if(i["高血壓等級"]=="第二期") departObj.second = departObj.second + 1;
-    else if(i["高血壓等級"]=="高血壓危象") departObj.third = departObj.third + 1;
-    if(i["測量次數"]>=4){
-      departObj.four.countPeople = departObj.four.countPeople + 1;
-      departObj.four.totalCount = departObj.four.totalCount + (i["測量次數"])*1;
-      if(i["高血壓等級"]=="正常") departObj.four.normal = departObj.four.normal + 1;
-      else if(i["高血壓等級"]=="高血壓前期") departObj.four.early = departObj.four.early + 1;
-      else if(i["高血壓等級"]=="第一期") departObj.four.first = departObj.four.first + 1;
-      else if(i["高血壓等級"]=="第二期") departObj.four.second = departObj.four.second + 1;
-      else if(i["高血壓等級"]=="高血壓危象") departObj.four.third = departObj.four.third + 1;
-    } 
-
-    tpmResult[i[column]] = departObj
   }
   return tpmResult
 }
@@ -138,18 +139,18 @@ function getPressExcelOutput(sunCount, totalPeople){
     "計畫測量率%": (Math.round(sunCount.four.countPeople / totalPeople * 10000) / 100.00) + "%",
     "計畫未測量率%": (Math.round(fourNoCount / totalPeople * 10000) / 100.00) + "%",
     計畫總量測次數: sunCount.four.totalCount,
-    門店平均量測次數: (Math.round(sunCount.four.totalCount / sunCount.four.countPeople * 10) / 10.00) + "次" ,
+    門店平均量測次數: sunCount.four.countPeople==0 ? "0次" : (Math.round(sunCount.four.totalCount / sunCount.four.countPeople * 10) / 10.00) + "次" ,
     計畫正常: sunCount.four.normal,
     計畫前期: sunCount.four.early,
     計畫第一期: sunCount.four.first,
     計畫第二期: sunCount.four.second,
     計畫危象: sunCount.four.third,
-    計畫血壓異常率: (Math.round(fourUnNormal/sunCount.four.countPeople * 10000) / 100.00) + "%",
+    計畫血壓異常率: sunCount.four.countPeople==0 ? "0%" : (Math.round(fourUnNormal/sunCount.four.countPeople * 10000) / 100.00) + "%",
   }
   return result
 }
 
-function getDepartList(dataList, idData){
+function getDepartList(dataList, idData, removeIdData){
   let tpmResult = getPressSumCount(dataList, "部門名稱")
 
   let result = []
@@ -163,7 +164,7 @@ function getDepartList(dataList, idData){
         two = idData[id].two
         one = idData[id].one
         departNo = idData[id].departNo
-        totalPeople = totalPeople + 1
+        if(!removeIdData[id]) totalPeople = totalPeople + 1
       } 
     }
 
@@ -183,7 +184,7 @@ function getDepartList(dataList, idData){
   return result
 }
 
-function getOneList(dataList, idData){
+function getOneList(dataList, idData, removeIdData){
   let tpmResult = getPressSumCount(dataList, "上一層組織中文名稱")
 
   let result = []
@@ -193,7 +194,7 @@ function getOneList(dataList, idData){
     for (let id in idData) {
       if(idData[id].one == i){
         two = idData[id].two
-        totalPeople = totalPeople + 1
+        if(!removeIdData[id]) totalPeople = totalPeople + 1
       } 
     }
 
@@ -211,7 +212,7 @@ function getOneList(dataList, idData){
   return result
 }
 
-function getTwoList(dataList, idData){
+function getTwoList(dataList, idData, removeIdData){
   let tpmResult = getPressSumCount(dataList, "上兩層組織中文名稱")
 
   let result = []
@@ -219,7 +220,7 @@ function getTwoList(dataList, idData){
     let totalPeople = 0
     for (let id in idData) {
       if(idData[id].two == i){
-        totalPeople = totalPeople + 1
+        if(!removeIdData[id]) totalPeople = totalPeople + 1
       } 
     }
 
@@ -242,6 +243,9 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
   const file = await getFile(`workIdTOdepart${monthStr}.json`)
   const idData = JSON.parse(file);
 
+  const removeFile = await getFile(`removeId${monthStr}.json`)
+  const removeIdData = JSON.parse(removeFile);
+
   const excel = xlsx.readFile(filename);
   var xlData = xlsx.utils.sheet_to_json(excel.Sheets['表單回應 1']);
   let arrayList = {};
@@ -257,7 +261,6 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
     let workId = addSevenZero(originWorkId+"")
     workId = reduceSevenZero(workId)
     let memo = ""
-    // const isIDCorrect = checkIDCorrect(workId)
     let nameCount = 0
     let departCount = 0
     if(!idData[workId]){
@@ -303,9 +306,10 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
       const averageSbp = arrayList[workId] ? ((arrayList[workId].averageSbp)*1 + sbp) : sbp
       const averageDbp = arrayList[workId] ? ((arrayList[workId].averageDbp)*1 + dbp) : dbp
       const averagePulse = arrayList[workId] ? ((arrayList[workId].averagePulse)*1 + pulse) : pulse
+      const reason = removeIdData[workId] ? removeIdData[workId].reason : ''
       arrayList[workId] = { count, averageSbp, averageDbp, 
         averagePulse, nameCount, memo, 
-        name, departCount, workName, workArea }
+        name, departCount, workName, workArea, reason }
     }
   })
 
@@ -324,8 +328,9 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
       部門名稱: idData[i]? idData[i].depart: '',
       工號: i,
       姓名: arrayList[i].name,
-      職稱: arrayList[i].workName,
-      工作區域: arrayList[i].workArea,
+      未測量原因: arrayList[i].reason,
+      職稱: arrayList[i].workName? arrayList[i].workName: '',
+      工作區域: arrayList[i].workArea? arrayList[i].workArea: '',
       平均收縮壓: Math.round(arrayList[i].averageSbp/ arrayList[i].count),
       平均舒張壓: Math.round(arrayList[i].averageDbp/ arrayList[i].count),
       平均脈搏: Math.round(arrayList[i].averagePulse/ arrayList[i].count),
@@ -355,7 +360,16 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
             代碼: idData[id].departNo,
             部門名稱: idData[id].depart,
             工號: id+"",
-            姓名: idData[id].name
+            姓名: idData[id].name,
+            未測量原因: removeIdData[id] ? removeIdData[id].reason : '',
+            職稱: '',
+            工作區域: '',
+            平均收縮壓: '',
+            平均舒張壓: '',
+            平均脈搏: '',
+            測量次數: 0,
+            高血壓等級: '',
+            備註: ''
           }
         )
       }
@@ -366,26 +380,268 @@ module.exports.parserPressExcel = async function parserPressExcel(filename, mont
   const ws = xlsx.utils.json_to_sheet(pressResult);
   // var workbook = xlsx.utils.book_new()
   xlsx.utils.book_append_sheet(excel, ws, '血壓統計');
+  changePressColor(ws, 15, pressResult.length)
 
   // 處
-  const twoWs = xlsx.utils.json_to_sheet(getTwoList(result, idData))
+  const twoData = getTwoList(result, idData, removeIdData)
+  const twoWs = xlsx.utils.json_to_sheet(twoData)
   xlsx.utils.book_append_sheet(excel, twoWs, '處');
+  changePressTwoColor(twoWs, 27, twoData.length)
 
   // 區
-  const oneWs = xlsx.utils.json_to_sheet(getOneList(result, idData))
+  const oneData = getOneList(result, idData, removeIdData)
+  const oneWs = xlsx.utils.json_to_sheet(oneData)
   xlsx.utils.book_append_sheet(excel, oneWs, '區');
+  changePressOneColor(oneWs, 28, oneData.length)
 
   // 店
-  const departWs = xlsx.utils.json_to_sheet(getDepartList(result, idData))
+  const departData = getDepartList(result, idData, removeIdData)
+  const departWs = xlsx.utils.json_to_sheet(departData)
   xlsx.utils.book_append_sheet(excel, departWs, '店');
+  changePressDepartColor(departWs, 30, departData.length)
 
   const id = crypto.randomBytes(20).toString('hex');
-  xlsx.writeFile(excel, `result/${id}.xlsx`);
+  XLSXStyle.writeFile(excel, `result/${id}.xlsx`);
 
-  await changePressColor(id)
+  // await changePressColor(id)
   return `${id}.xlsx`;
 }
 
+const ABCArr = [
+  "A","B","C","D","E",
+  "F","G","H","I","J",
+  "K","L","M","N","O",
+  "P","Q","R","S","T",
+  "U","V","W","X","Y",
+  "Z","AA","AB","AC","AD","AE","AF","AG","AH"]
+
+function changePressColor(ws, columnLength, dataLength){
+  let wscols = [
+    {wch:20}, //A
+    {wch:20}, //B
+    {wch:15}, //C
+    {wch:20}, //D
+    {wch:11}, //E
+    {wch:11}, //F
+    {wch:11}, //G
+    {wch:11}, //H
+    {wch:11}, //I
+    {wch:11}, //J
+    {wch:11}, //K
+    {wch:11}, //L
+    {wch:11}, //M
+    {wch:11}, //N
+    {wch:20}, //O
+  ];
+
+  ws['!cols'] = wscols;
+
+  // title
+  for(let i=0; i<columnLength; i++) {
+    ws[`${ABCArr[i]}1`].s = {
+      fill: {
+        fgColor: { rgb: "FFFFFACD" }
+      },
+      alignment: {
+        horizontal: "center",
+      },
+    };
+  }
+
+  // data
+  for(let i=0; i<columnLength; i++) {
+    for(let j=2; j<=(dataLength+1); j++) {
+      ws[`${ABCArr[i]}${j}`].s = {
+        alignment: {
+          horizontal: "center",
+        },
+      };
+    }
+  }
+}
+
+function changePressTwoColor(ws, columnLength, dataLength){
+  let wscols = [
+    {wch:20}, //A
+    {wch:11}, //B
+    {wch:11}, //C
+    {wch:11}, //D
+    {wch:11}, //E
+    {wch:11}, //F
+    {wch:11}, //G
+    {wch:11}, //H
+    {wch:11}, //I
+    {wch:11}, //J
+    {wch:11}, //K
+    {wch:11}, //L
+    {wch:11}, //M
+    {wch:11}, //N
+    {wch:11}, //O
+    {wch:15}, //P
+    {wch:15}, //Q
+    {wch:15}, //R
+    {wch:15}, //S
+    {wch:15}, //T
+    {wch:15}, //U
+    {wch:11}, //V
+    {wch:11}, //W
+    {wch:11}, //X
+    {wch:11}, //Y
+    {wch:11}, //Z
+    {wch:15}, //AA
+  ];
+
+  ws['!cols'] = wscols;
+
+  // title
+  for(let i=0; i<columnLength; i++) {
+    let color = "FFFFFACD"
+    if(i>=15) color = "FF77DDFF"
+    ws[`${ABCArr[i]}1`].s = {
+      fill: {
+        fgColor: { rgb: color }
+      },
+      alignment: {
+        horizontal: "center",
+      },
+    };
+  }
+
+  // data
+  for(let i=0; i<columnLength; i++) {
+    for(let j=2; j<=(dataLength+1); j++) {
+      ws[`${ABCArr[i]}${j}`].s = {
+        alignment: {
+          horizontal: "center",
+        },
+      };
+    }
+  }
+}
+
+function changePressOneColor(ws, columnLength, dataLength){
+  let wscols = [
+    {wch:20}, //A
+    {wch:20}, //B
+    {wch:11}, //C
+    {wch:11}, //D
+    {wch:11}, //E
+    {wch:11}, //F
+    {wch:11}, //G
+    {wch:11}, //H
+    {wch:11}, //I
+    {wch:11}, //J
+    {wch:11}, //K
+    {wch:11}, //L
+    {wch:11}, //M
+    {wch:11}, //N
+    {wch:11}, //O
+    {wch:11}, //P
+    {wch:15}, //Q
+    {wch:15}, //R
+    {wch:15}, //S
+    {wch:15}, //T
+    {wch:15}, //U
+    {wch:15}, //V
+    {wch:11}, //W
+    {wch:11}, //X
+    {wch:11}, //Y
+    {wch:11}, //Z
+    {wch:11}, //AA
+    {wch:15}, //AB
+  ];
+
+  ws['!cols'] = wscols;
+
+  // title
+  for(let i=0; i<columnLength; i++) {
+    let color = "FFFFFACD"
+    if(i>=16) color = "FF77DDFF"
+    ws[`${ABCArr[i]}1`].s = {
+      fill: {
+        fgColor: { rgb: color }
+      },
+      alignment: {
+        horizontal: "center",
+      },
+    };
+  }
+
+  // data
+  for(let i=0; i<columnLength; i++) {
+    for(let j=2; j<=(dataLength+1); j++) {
+      ws[`${ABCArr[i]}${j}`].s = {
+        alignment: {
+          horizontal: "center",
+        },
+      };
+    }
+  }
+}
+
+function changePressDepartColor(ws, columnLength, dataLength){
+  let wscols = [
+    {wch:20}, //A
+    {wch:20}, //B
+    {wch:15}, //C
+    {wch:15}, //D
+    {wch:11}, //E
+    {wch:11}, //F
+    {wch:11}, //G
+    {wch:11}, //H
+    {wch:11}, //I
+    {wch:11}, //J
+    {wch:11}, //K
+    {wch:11}, //L
+    {wch:11}, //M
+    {wch:11}, //N
+    {wch:11}, //O
+    {wch:11}, //P
+    {wch:11}, //Q
+    {wch:11}, //R
+    {wch:15}, //S
+    {wch:15}, //T
+    {wch:15}, //U
+    {wch:15}, //V
+    {wch:15}, //W
+    {wch:15}, //X
+    {wch:11}, //Y
+    {wch:11}, //Z
+    {wch:11}, //AA
+    {wch:11}, //AB
+    {wch:11}, //AC
+    {wch:15}  //AD
+  ];
+
+  ws['!cols'] = wscols;
+
+  // title
+  for(let i=0; i<columnLength; i++) {
+    let color = "FFFFFACD"
+    if(i>=18) color = "FF77DDFF"
+    ws[`${ABCArr[i]}1`].s = {
+      fill: {
+        fgColor: { rgb: color }
+      },
+      alignment: {
+        horizontal: "center",
+      },
+    };
+  }
+
+  // data
+  for(let i=0; i<columnLength; i++) {
+    for(let j=2; j<=(dataLength+1); j++) {
+      ws[`${ABCArr[i]}${j}`].s = {
+        alignment: {
+          horizontal: "center",
+        },
+      };
+    }
+  }
+}
+
+/*
 async function changePressColor(fileName){
   return new Promise((resolve, reject) => {
     XlsxPopulate.fromFileAsync(`result/${fileName}.xlsx`)
@@ -487,3 +743,4 @@ async function changePressColor(fileName){
     console.log(error);
   })
 }
+*/
