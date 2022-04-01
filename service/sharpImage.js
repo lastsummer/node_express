@@ -9,7 +9,7 @@ module.exports.getMetadata = async function getMetadata(code) {
 <svg width="${width}" height="${height}" viewBox="0 0 ${height} ${height + 2}">
   <!--this rect should have rounded corners-->
   <rect x="-15" y="123" width="370" height="40" rx="1" fill="#34c759" />
-  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#e4f9ed" font-size="3em" font-family="-apple-system, BlinkMacSystemFont, sans-serif">${code}</text>
+  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#e4f9ed" font-size="3em">${code}</text>
 </svg>
 `;
   const svg_buffer = Buffer.from(svg, 'utf8');
