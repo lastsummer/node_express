@@ -9,7 +9,7 @@ module.exports.getMetadata = async function getMetadata(code) {
 <svg width="${width}" height="${height}" viewBox="0 0 ${height} ${height + 2}">
   <!--this rect should have rounded corners-->
   <rect x="-15" y="123" width="370" height="40" rx="1" fill="#34c759" />
-  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#e4f9ed" font-size="3em">${code}</text>
+  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#e4f9ed" font-size="3em" font-family="Arial">${code}</text>
 </svg>
 `;
   const svg_buffer = Buffer.from(svg, 'utf8');
@@ -28,7 +28,7 @@ module.exports.getMetadata = async function getMetadata(code) {
 <svg width="${dateWidth}" height="${dateHeight}" viewBox="0 0 ${dateHeight} ${dateHeight + 2}">
   <!--this rect should have rounded corners-->
   <rect x="-15" y="123" width="370" height="40" rx="1" fill="#000000" />
-  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#8a898d" font-size="2em">${timeText}</text>
+  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#8a898d" font-size="2em" font-family="Arial">${timeText}</text>
 </svg>
 `;
   const date_svg_buffer = Buffer.from(dateSvg, 'utf8');
