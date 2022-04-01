@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>簡訊</title>
+    <link href="./css/bootstrap.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <form id="formMessageCode">
+      <div class="mb-3">
+        <label for="formFile" class="form-label">代碼</label>
+        <input type="text" id="localCode" name="localCode" />
+      </div>
+			<div class="spinner-border" role="status" id="loadingMessageCode" style="display:none">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+      <div id="resultMessageCode"></div>
+      <div>
+				<button type="button" class="btn btn-primary" id="btnMessageCode">送出</button>
+			</div>
+		</form>
+    <div style="height:100px">
+
+    </div>
+
+    <script src="./js/jquery-3.6.0.min.js"></script>
+
+    <script>
+      let uploadFile = function (formName) {
+        $('#btn' + formName).prop('disabled', true);
+        let form = $('#form' + formName)[0];
+        let data = new FormData(form);
+        $('#loading' + formName ).show();
+        $('#result' + formName).html("");
+        $.ajax({
+          type: 'POST',
+          contentType : 'application/json; charset=utf-8',
+          url: '/message/' + formName,
+          dataType: "json",
+          data: JSON.stringify({"localCode": $('#localCode').val()}),
+          cache: false,
+          async: true,
+          timeout: 1000000,
+          success: function (data) {
+						
+            $('#result' + formName).html("<a href='../download/"+data.fileName+"' target=\"_blank\">"+data.fileName+"</a>");
+            $('#loading' + formName ).hide();
+            $('#btn' + formName).prop('disabled', false);
+						
+          },
+          error: function (e) {
+            console.log('ERROR : ', e);
+            $('#btn' + formName).prop('disabled', false);
+          },
+        });
+      };
+
+
+      $('#btnMessageCode').on('click', function (event) {
+        event.preventDefault();
+        uploadFile('MessageCode');
+      });
+
+    </script>
+  </body>
+</html>

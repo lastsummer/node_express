@@ -1,11 +1,16 @@
 const express = require('express');
-const multer  = require('multer');
+const multer = require('multer');
+const bodyParser = require('body-parser');
 const readExcel = require('./readExcel')
 const idExcel = require('./service/idExcel')
 const pressExcel = require('./service/pressExcel')
+const sharpImage = require('./service/sharpImage')
 const wang = require('./wang')
 
 let app = express();
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
 app.use(express.static('public'));
 app.set('view engine','ejs')
 const upload = multer({ dest: 'uploads/' })
@@ -73,7 +78,7 @@ app.post('/import/UploadMonthPress/:month', upload.single('uploadExcelMonthPress
   res.json({fileName})
 })
 
-// 下載excel
+// 下載excel / jpg
 app.get('/download/:filename', function(req, res){
   const file = `./result/${req.params.filename}`;
   res.download(file);
@@ -100,6 +105,17 @@ app.get('/wang/deleteTime', async function(req, res){
   const data = await wang.deleteTime(req.query.year*1, req.query.month*1, req.query.day)
   res.json({data})
 })
+
+// ------------------------------------------------ messgae
+app.get('/messgae', function(req, res){
+  res.render('messgae')
+})
+app.post('/message/MessageCode', async function(req, res){
+  // const fileName = "123"
+  const fileName = await sharpImage.getMetadata(req.body.localCode)
+  res.json({fileName})
+})
+
 
 let port = 80;
 app.listen(port);
