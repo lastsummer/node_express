@@ -5,7 +5,7 @@ const crypto = require('crypto');
 module.exports.getMetadata = async function getMetadata(code) {
   const width = 500;
   const height = 300;
-  const svg = `
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" viewBox="0 0 ${height} ${height + 2}">
   <!--this rect should have rounded corners-->
   <rect x="-15" y="123" width="370" height="40" rx="1" fill="#34c759" />
@@ -24,7 +24,7 @@ module.exports.getMetadata = async function getMetadata(code) {
   }
   const dateWidth = 300;
   const dateHeight = 300;
-  const dateSvg = `
+  const dateSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${dateWidth}" height="${dateHeight}" viewBox="0 0 ${dateHeight} ${dateHeight + 2}">
   <!--this rect should have rounded corners-->
   <rect x="-15" y="123" width="370" height="40" rx="1" fill="#000000" />
