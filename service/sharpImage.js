@@ -34,6 +34,8 @@ module.exports.getMetadata = async function getMetadata(code) {
   const date_svg_buffer = Buffer.from(dateSvg, 'utf8');
 
   const fileName = crypto.randomBytes(20).toString('hex');
+  await sharp(date_svg_buffer).grayscale().toFile('./result/test.jpg');
+
   const metadata = await sharp('S__37609519.jpg')
     .composite([
       {
