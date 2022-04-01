@@ -12,7 +12,7 @@ module.exports.getMetadata = async function getMetadata(code) {
   <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#e4f9ed" font-size="3em" font-family="-apple-system, BlinkMacSystemFont, sans-serif">${code}</text>
 </svg>
 `;
-  const svg_buffer = Buffer.from(svg);
+  const svg_buffer = Buffer.from(svg, 'utf8');
 
   // 日期
   const currentDate = new Date();
@@ -31,7 +31,7 @@ module.exports.getMetadata = async function getMetadata(code) {
   <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#8a898d" font-size="2em" font-family="-apple-system, BlinkMacSystemFont, sans-serif">${timeText}</text>
 </svg>
 `;
-  const date_svg_buffer = Buffer.from(dateSvg);
+  const date_svg_buffer = Buffer.from(dateSvg, 'utf8');
 
   const fileName = crypto.randomBytes(20).toString('hex');
   const metadata = await sharp('S__37609519.jpg')
