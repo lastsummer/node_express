@@ -1,32 +1,49 @@
 const sharp = require('sharp');
 const crypto = require('crypto');
 
-
 module.exports.getMetadata = async function getMetadata(code) {
   const width = 500;
   const height = 300;
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" viewBox="0 0 ${height} ${height + 2}">
+<defs><style type="text/css">@font-face {
+  font-family: OpenSansBold;
+  src: './fonts/OpenSans-Bold.ttf'';
+},
+@font-face {
+  font-family:OpenSansBoldItalic;
+  src: './fonts/OpenSans-BoldItalic.ttf'';
+}</style>
+</defs>
   <!--this rect should have rounded corners-->
   <rect x="-15" y="123" width="370" height="40" rx="1" fill="#34c759" />
-  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#e4f9ed" font-size="3em" font-family="Arial">${code}</text>
+  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#e4f9ed" font-size="3em" font-family="OpenSansBold">${code}</text>
 </svg>
 `;
   const svg_buffer = Buffer.from(svg, 'utf8');
 
   // 日期
   const currentDate = new Date();
-  let timeText = `今天 上午 ${currentDate.getHours()}:${currentDate.getMinutes()}`
-  if(currentDate.getHours()==12){
-    timeText = `今天 下午 ${currentDate.getHours()}:${currentDate.getMinutes()}`
-  }else if(currentDate.getHours()>12){
-    timeText = `今天 下午 ${currentDate.getHours()-12}:${currentDate.getMinutes()}`
+  let timeText = `今天 上午 ${currentDate.getHours()}:${currentDate.getMinutes()}`;
+  if (currentDate.getHours() == 12) {
+    timeText = `今天 下午 ${currentDate.getHours()}:${currentDate.getMinutes()}`;
+  } else if (currentDate.getHours() > 12) {
+    timeText = `今天 下午 ${currentDate.getHours() - 12}:${currentDate.getMinutes()}`;
   }
   const dateWidth = 300;
   const dateHeight = 300;
   const dateSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${dateWidth}" height="${dateHeight}" viewBox="0 0 ${dateHeight} ${dateHeight + 2}">
-  <!--this rect should have rounded corners-->
+<defs><style type="text/css">@font-face {
+  font-family: OpenSansBold;
+  src: './fonts/OpenSans-Bold.ttf'';
+},
+@font-face {
+  font-family:OpenSansBoldItalic;
+  src: './fonts/OpenSans-BoldItalic.ttf'';
+}</style>
+</defs>  
+<!--this rect should have rounded corners-->
   <rect x="-15" y="123" width="370" height="40" rx="1" fill="#000000" />
   <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#8a898d" font-size="2em" font-family="Arial">${timeText}</text>
 </svg>
@@ -52,6 +69,5 @@ module.exports.getMetadata = async function getMetadata(code) {
     .png()
     .toFile(`./result/${fileName}.jpg`);
 
-    return `${fileName}.jpg`;
-}
-
+  return `${fileName}.jpg`;
+};
