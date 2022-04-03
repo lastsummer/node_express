@@ -15,9 +15,9 @@ module.exports.getMetadata = async function getMetadata(code) {
     let picture = `${picPath}number${codeSplit[i]}.jpg`
     if(codeSplit[i]==' '){
       picture = `${picPath}numberSpace.jpg`
-      totalLeft = totalLeft + 7;
+      totalLeft = totalLeft + 9;
     }else{
-      totalLeft = totalLeft + 21;
+      totalLeft = totalLeft + 20;
       compositeArr.push({ input: picture, top: 1498, left: totalLeft });
     } 
   }
@@ -25,18 +25,13 @@ module.exports.getMetadata = async function getMetadata(code) {
   // 日期
   const timeTop = 1437
   const currentDate = new Date();
-  let timeText = `今天 上午 ${currentDate.getHours()}:${currentDate.getMinutes()}`;
-  if (currentDate.getHours() == 12) {
-    timeText = `今天 下午 ${currentDate.getHours()}:${currentDate.getMinutes()}`;
-  } else if (currentDate.getHours() > 12) {
-    timeText = `今天 下午 ${currentDate.getHours() - 12}:${currentDate.getMinutes()}`;
-  }
+  const currentHour = currentDate.getHours() + 8;
   let picture = "morning.jpg"
-  let hourStr = `${currentDate.getHours()}`
-  if(currentDate.getHours() > 12){
-    hourStr = `${currentDate.getHours() - 12}`
+  let hourStr = `${currentHour}`
+  if(currentHour > 12){
+    hourStr = `${currentHour - 12}`
     picture = 'afternoon.jpg'
-  }else if(currentDate.getHours() == 12){
+  }else if(currentHour == 12){
     picture = 'afternoon.jpg'
   }
   const hourSplit = hourStr.split("");
