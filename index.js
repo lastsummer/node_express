@@ -5,7 +5,6 @@ const readExcel = require('./readExcel')
 const idExcel = require('./service/idExcel')
 const pressExcel = require('./service/pressExcel')
 const sharpImage = require('./service/sharpImage')
-const handler = require('./service/handler')
 const wang = require('./wang')
 
 let app = express();
@@ -114,7 +113,6 @@ app.get('/messgae', function(req, res){
 app.post('/message/MessageCode', async function(req, res){
   // const fileName = "123"
   const fileName = await sharpImage.getMetadata(req.body.localCode)
-  await handler.testAddCode()
   res.json({fileName})
 })
 

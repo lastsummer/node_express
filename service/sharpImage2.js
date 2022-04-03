@@ -5,16 +5,15 @@ function fillMinutes(minutes){
   if(minutes<10) return `0${minutes}`
   return `${minutes}`
 }
-const picPath = './service/pic/'
-module.exports.getMetadata = async function getMetadata(code) {
+async function getMetadata(code) {
   // 場所代碼
   const codeSplit = code.split("");
   let compositeArr = []
   let totalLeft = 396;
   for (let i in codeSplit) {
-    let picture = `${picPath}number${codeSplit[i]}.jpg`
+    let picture = `./pic/number${codeSplit[i]}.jpg`
     if(codeSplit[i]==' '){
-      picture = `${picPath}numberSpace.jpg`
+      picture = `./pic/numberSpace.jpg`
       totalLeft = totalLeft + 7;
     }else{
       totalLeft = totalLeft + 21;
@@ -39,21 +38,21 @@ module.exports.getMetadata = async function getMetadata(code) {
   }else if(currentDate.getHours() == 12){
     picture = 'afternoon.jpg'
   }
-  const hourSplit = hourStr.split("");
-  let timeTotalLeft = 478;
+  const hourSplit = `12`.split("");
+  let timeTotalLeft = 479;
   for (let i in hourSplit) {
-    let picture = `${picPath}time${hourSplit[i]}.jpg`
+    let picture = `./pic/time${hourSplit[i]}.jpg`
     timeTotalLeft = timeTotalLeft + i*15
     compositeArr.push({ input: picture, top: timeTop, left: timeTotalLeft });
   }
   timeTotalLeft = timeTotalLeft + 15
-  compositeArr.push({ input: `${picPath}timeColon.jpg`, top: timeTop, left: timeTotalLeft });
+  compositeArr.push({ input: `./pic/timeColon.jpg`, top: timeTop, left: timeTotalLeft });
 
   timeTotalLeft = timeTotalLeft + 9
   let minuteStr = `${fillMinutes(currentDate.getMinutes())}`
   const minuteSplit = minuteStr.split("");
   for (let i in minuteSplit) {
-    let picture = `${picPath}time${minuteSplit[i]}.jpg`
+    let picture = `./pic/time${minuteSplit[i]}.jpg`
     timeTotalLeft = timeTotalLeft + i*15
     compositeArr.push({ input: picture, top: timeTop, left: timeTotalLeft });
   }
@@ -61,10 +60,12 @@ module.exports.getMetadata = async function getMetadata(code) {
 
   const fileName = crypto.randomBytes(20).toString('hex');
 
-  const metadata = await sharp(`${picture}`)
+  const metadata = await sharp(`../${picture}`)
     .composite(compositeArr)
     .png()
-    .toFile(`./result/${fileName}.jpg`);
+    .toFile(`./${fileName}.jpg`);
 
   return `${fileName}.jpg`;
 };
+
+getMetadata("1234 1234 1234 123")
