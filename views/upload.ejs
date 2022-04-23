@@ -89,6 +89,8 @@
         <div class="resultCol">區域</div>
         <div class="resultCol">工號</div>
         <div class="resultCol">姓名</div>
+        <div class="resultCol">年齡</div>
+        <div class="resultCol">性別</div>
         <div class="resultCol">血壓等級</div>
         <div class="resultCol">到職日</div>
         <div class="resultCol">離職日</div>
@@ -100,6 +102,24 @@
       <div>
         <br/>
         <div class="inputTitle">輸出格式：</div>
+        <div class="inputSheet">(sheetName：血壓統計(有加上未測量原因))</div>
+        輸出欄位：
+        <div class="resultColFirst">第一層組織</div>
+        <div class="resultCol">第二層組織</div>
+        <div class="resultCol">區域</div>
+        <div class="resultCol">工號</div>
+        <div class="resultCol">姓名</div>
+        <div class="resultCol">年齡</div>
+        <div class="resultCol">性別</div>
+        <div class="resultCol">血壓等級</div>
+        <div class="resultCol">到職日</div>
+        <div class="resultCol">離職日</div>
+        <div class="resultCol">平均收縮壓</div>
+        <div class="resultCol">平均舒張壓</div>
+        <div class="resultCol">平均脈搏</div>
+        <div class="resultCol">量測次數</div>
+        <div class="resultCol">未測量原因</div>
+        <br/>
         <div class="inputSheet">(sheetName：處)</div>
         輸出欄位：
         <div class="resultColFirst">處</div>
@@ -196,9 +216,49 @@
       </div>
       <div>
         <br/>
+        <div class="inputTitle">規則：</div>
+        <div>1. 計畫測量人數只有計算測量次數>=4。</div>
+        <div>2. 計畫未測量人數=總人數-計畫測量人數。</div>
+        <div>3. 總人數/測量人數/計畫測量人數(所有的計算)不會計算未測量人數。</div>
+      </div>
+      <div>
+        <br/>
         <div class="inputTitle">備註：</div>
         <div>1. 輸入的Excel已經包含處的所有員工。</div>
         <div>2. 店的代碼是空的。</div>
+        <div>3. 需要用到未測量名單。</div>
+      </div>
+		</form>
+    <div style="height:50px"></div>
+
+    <form id="formUploadRemoveId">
+      <div class="mb-3">
+        <label for="formFile" class="title">未測量名單員工資料</label>
+        <input class="form-control" type="file" id="uploadExcelRemoveId" name="uploadExcelRemoveId" />
+      </div>
+			<div class="spinner-border" role="status" id="loadingUploadRemoveId" style="display:none">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+      <div id="resultUploadRemoveId"></div>
+      <div>
+				<button type="button" class="btn btn-primary" id="btnUploadRemoveId">送出</button>
+			</div>
+      <div>
+        <div class="inputTitle">輸入格式：</div>
+        <div class="inputSheet">(sheetName：未測量名單)</div>
+        第一行必要輸入欄位：
+        <div class="resultCol">上兩層組織中文名稱</div>
+        <div class="resultCol">上一層組織中文名稱</div>
+        <div class="resultCol">代碼</div>
+        <div class="resultCol">部門名稱</div>
+        <div class="resultCol">工號</div>
+        <div class="resultCol">姓名</div>
+        <div class="resultColFirst">未測量4次原因</div>
+      </div>
+      <div>
+        <br/>
+        <div class="inputTitle">備註：</div>
+        <div>1. 只要是「未測量4次原因」有填寫就會計算到未測量。</div>
       </div>
 		</form>
 
@@ -249,6 +309,42 @@
       $('#btnUploadPressNew').on('click', function (event) {
         event.preventDefault();
         uploadFile('UploadPressNew');
+      });
+
+      let uploadFileRemove = function (formName) {
+        $('#btn' + formName).prop('disabled', true);
+        let form = $('#form' + formName)[0];
+        let data = new FormData(form);
+        $('#loading' + formName ).show();
+        $('#result' + formName).html("");
+        $.ajax({
+          type: 'POST',
+          enctype: 'multipart/form-data',
+          url: '/import/' + formName,
+          data: data,
+          processData: false,
+          contentType: false,
+          cache: false,
+          async: true,
+          timeout: 1000000,
+          success: function (data) {
+						
+            $('#result' + formName).html(data);
+            $('#loading' + formName ).hide();
+            $('#btn' + formName).prop('disabled', false);
+						
+          },
+          error: function (e) {
+            console.log('ERROR : ', e);
+            $('#btn' + formName).prop('disabled', false);
+          },
+        });
+      };
+
+
+      $('#btnUploadRemoveId').on('click', function (event) {
+        event.preventDefault();
+        uploadFileRemove('UploadRemoveId');
       });
     </script>
   </body>

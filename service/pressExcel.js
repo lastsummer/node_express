@@ -641,6 +641,7 @@ function changePressDepartColor(ws, columnLength, dataLength){
   }
 }
 
+module.exports.changePressColor = changePressColor;
 module.exports.changePressTwoColor = changePressTwoColor;
 module.exports.changePressOneColor = changePressOneColor;
 module.exports.changePressDepartColor = changePressDepartColor;

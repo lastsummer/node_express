@@ -71,7 +71,7 @@ function getPressExcelOutput(sunCount, totalPeople){
 function getPressSumCount(dataList, column){
   let tpmResult = {}
   for (let i of dataList) {
-    if(i["量測次數"]){
+    if(i["量測次數"] && !i["未測量原因"]){
       let departObj = tpmResult[i[column]]
       if(!departObj){
         departObj = {
@@ -116,7 +116,7 @@ function getPressSumCount(dataList, column){
   }
   return tpmResult
 }
-function getTwoList(dataList){
+function getTwoList(dataList, removeIdData){
   let tpmResult = getPressSumCount(dataList, "第一層組織")
 
   let result = []
@@ -124,7 +124,11 @@ function getTwoList(dataList){
     let totalPeople = 0
     for (let j of dataList) {
       if(j["第一層組織"] == i){
-        totalPeople = totalPeople + 1
+        const id = j["工號"]
+        if(!removeIdData[id]){
+          totalPeople = totalPeople + 1
+        }
+        
       } 
     }
 
@@ -141,7 +145,7 @@ function getTwoList(dataList){
   return result
 }
 
-function getOneList(dataList){
+function getOneList(dataList, removeIdData){
   let tpmResult = getPressSumCount(dataList, "第二層組織")
 
   let result = []
@@ -150,8 +154,12 @@ function getOneList(dataList){
     let totalPeople = 0
     for (let j of dataList) {
       if(j["第二層組織"] == i){
-        totalPeople = totalPeople + 1
-        two = j["第一層組織"]
+        const id = j["工號"]
+        if(!removeIdData[id]){
+          totalPeople = totalPeople + 1
+          two = j["第一層組織"]
+        }
+        
       } 
     }
     
@@ -170,7 +178,7 @@ function getOneList(dataList){
   return result
 }
 
-function getDepartList(dataList){
+function getDepartList(dataList, removeIdData){
   let tpmResult = getPressSumCount(dataList, "區域")
 
   let result = []
@@ -182,9 +190,12 @@ function getDepartList(dataList){
 
     for (let j of dataList) {
       if(j["區域"] == i){
-        totalPeople = totalPeople + 1
-        two = j["第一層組織"]
-        one = j["第二層組織"]
+        const id = j["工號"]
+        if(!removeIdData[id]){
+          totalPeople = totalPeople + 1
+          two = j["第一層組織"]
+          one = j["第二層組織"]
+        }
       } 
     }
 
@@ -207,23 +218,40 @@ function getDepartList(dataList){
 module.exports.parserPressExcel = async function parserPressExcel(filename) {
 
 
+  const removeFile = await getFile(`removeId.json`)
+  const removeIdData = JSON.parse(removeFile);
+
   const excel = xlsx.readFile(filename);
   var xlData = xlsx.utils.sheet_to_json(excel.Sheets['血壓統計']);
+  let result = []
+  xlData.forEach((user) => {
+    const workId = user["工號"]
+    const reason = removeIdData[workId] ? removeIdData[workId].reason : ''
+    const userUser = {
+      ...user,
+      未測量原因: reason
+    }
+    result.push(userUser)
+  })
+
+  const ws = xlsx.utils.json_to_sheet(result);
+  xlsx.utils.book_append_sheet(excel, ws, '血壓統計(有加上未測量原因)');
+  changePressColor(ws, 15, result.length)
 
   // 處
-  const twoData = getTwoList(xlData)
+  const twoData = getTwoList(result, removeIdData)
   const twoWs = xlsx.utils.json_to_sheet(twoData)
   xlsx.utils.book_append_sheet(excel, twoWs, '處');
   pressExcel.changePressTwoColor(twoWs, 27, twoData.length)
 
   // 區
-  const oneData = getOneList(xlData)
+  const oneData = getOneList(result, removeIdData)
   const oneWs = xlsx.utils.json_to_sheet(oneData)
   xlsx.utils.book_append_sheet(excel, oneWs, '區');
   pressExcel.changePressOneColor(oneWs, 28, oneData.length)
 
   // 店
-  const departData = getDepartList(xlData)
+  const departData = getDepartList(result, removeIdData)
   const departWs = xlsx.utils.json_to_sheet(departData)
   xlsx.utils.book_append_sheet(excel, departWs, '店');
   pressExcel.changePressDepartColor(departWs, 30, departData.length)
@@ -247,4 +275,59 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
   測量次數 - 量測次數
   高血壓等級 - 血壓等級
   */
+}
+
+const ABCArr = [
+  "A","B","C","D","E",
+  "F","G","H","I","J",
+  "K","L","M","N","O",
+  "P","Q","R","S","T",
+  "U","V","W","X","Y",
+  "Z","AA","AB","AC","AD","AE","AF","AG","AH"]
+
+function changePressColor(ws, columnLength, dataLength){
+  let wscols = [
+    {wch:20}, //A
+    {wch:20}, //B
+    {wch:20}, //C
+    {wch:11}, //D
+    {wch:11}, //E
+    {wch:11}, //F
+    {wch:11}, //G
+    {wch:11}, //H
+    {wch:11}, //I
+    {wch:11}, //J
+    {wch:11}, //K
+    {wch:11}, //L
+    {wch:11}, //M
+    {wch:11}, //N
+    {wch:20}, //O
+  ];
+
+  ws['!cols'] = wscols;
+
+  // title
+  for(let i=0; i<columnLength; i++) {
+    ws[`${ABCArr[i]}1`].s = {
+      fill: {
+        fgColor: { rgb: "FFFFFACD" }
+      },
+      alignment: {
+        horizontal: "center",
+      },
+    };
+  }
+
+  // data
+  for(let i=0; i<columnLength; i++) {
+    for(let j=2; j<=(dataLength+1); j++) {
+      if(ws[`${ABCArr[i]}${j}`]){
+        ws[`${ABCArr[i]}${j}`].s = {
+          alignment: {
+            horizontal: "center",
+          },
+        };
+      }
+    }
+  }
 }
