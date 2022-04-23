@@ -6,12 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>轉換Excel 暫時網站</title>
     <link href="./css/bootstrap.css" rel="stylesheet" />
+    <style>
+      .title{
+        color: #CC0000;
+        font-size:20px;
+        font-weight:500;
+      }
+      .resultCol{
+        display:table-cell;
+        border-top:1px solid #000000;
+        border-right:1px solid #000000;
+        border-bottom:1px solid #000000;
+        padding:5px;
+      }
+      .resultColFirst{
+        display:table-cell;
+        border:1px solid #000000;
+        padding:5px;
+      }
+
+      .inputTitle{
+        color:#227700;
+        font-weight:500;
+        display:table-cell;
+      }
+      .inputSheet{
+        display:table-cell;
+      }
+    </style>
   </head>
 
   <body>
     <form id="formUpload4">
       <div class="mb-3">
-        <label for="formFile" class="form-label">4級 / 心力評量表</label>
+        <label for="formFile" class="title">4級 / 心力評量表</label>
         <input class="form-control" type="file" id="uploadExcel4" name="uploadExcel4" />
       </div>
 			<div class="spinner-border" role="status" id="loadingUpload4" style="display:none">
@@ -22,13 +50,11 @@
 				<button type="button" class="btn btn-primary" id="btnUpload4">送出</button>
 			</div>
 		</form>
-    <div style="height:100px">
-
-    </div>
+    <div style="height:50px"></div>
 
     <form id="formUploadPress">
       <div class="mb-3">
-        <label for="formFile" class="form-label">血壓</label>
+        <label for="formFile" class="title">血壓</label>
         <input class="form-control" type="file" id="uploadExcelPress" name="uploadExcelPress" />
       </div>
 			<div class="spinner-border" role="status" id="loadingUploadPress" style="display:none">
@@ -38,6 +64,142 @@
       <div>
 				<button type="button" class="btn btn-primary" id="btnUploadPress">送出</button>
 			</div>
+		</form>
+    <div style="height:50px"></div>
+
+    
+    <form id="formUploadPressNew">
+      <div class="mb-3">
+        <label for="formFile" class="title">血壓新格式</label>
+        <input class="form-control" type="file" id="uploadExcelPressNew" name="uploadExcelPressNew" />
+      </div>
+			<div class="spinner-border" role="status" id="loadingUploadPressNew" style="display:none">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+      <div id="resultUploadPressNew"></div>
+      <div>
+				<button type="button" class="btn btn-primary" id="btnUploadPressNew">送出</button>
+			</div>
+      <div>
+        <div class="inputTitle">輸入格式：</div>
+        <div class="inputSheet">(sheetName：血壓統計)</div>
+        第一行必要輸入欄位：（因此需要刪除日期行）
+        <div class="resultColFirst">第一層組織</div>
+        <div class="resultCol">第二層組織</div>
+        <div class="resultCol">區域</div>
+        <div class="resultCol">工號</div>
+        <div class="resultCol">姓名</div>
+        <div class="resultCol">血壓等級</div>
+        <div class="resultCol">到職日</div>
+        <div class="resultCol">離職日</div>
+        <div class="resultCol">平均收縮壓</div>
+        <div class="resultCol">平均舒張壓</div>
+        <div class="resultCol">平均脈搏</div>
+        <div class="resultCol">量測次數</div>
+      </div>
+      <div>
+        <br/>
+        <div class="inputTitle">輸出格式：</div>
+        <div class="inputSheet">(sheetName：處)</div>
+        輸出欄位：
+        <div class="resultColFirst">處</div>
+        <div class="resultCol">總人數</div>
+        <div class="resultCol">測量人數</div>
+        <div class="resultCol">未測量</div>
+        <div class="resultCol">測量率</div>
+        <div class="resultCol">未測量率</div>
+        <div class="resultCol">測量次數<8</div>
+        <div class="resultCol">總量測次數</div>
+        <div class="resultCol">平均測量次數</div>
+        <div class="resultCol">正常</div>
+        <div class="resultCol">血壓異常率</div>
+        <div class="resultCol">高血壓前期</div>
+        <div class="resultCol">第一期</div>
+        <div class="resultCol">第二期</div>
+        <div class="resultCol">高血壓危象</div>
+        <div class="resultCol">計畫測量人數</div>
+        <div class="resultCol">計畫未測量人數</div>
+        <div class="resultCol">計畫測量率%</div>
+        <div class="resultCol">計畫未測量率%</div>
+        <div class="resultCol">計畫總量測次數</div>
+        <div class="resultCol">門店平均量測次數</div>
+        <div class="resultCol">計畫正常</div>
+        <div class="resultCol">計畫前期</div>
+        <div class="resultCol">計畫第一期</div>
+        <div class="resultCol">計畫第二期</div>
+        <div class="resultCol">計畫危象</div>
+        <div class="resultCol">計畫血壓異常率</div>
+        <br/>
+        <div class="inputSheet">(sheetName：區)</div>
+        輸出欄位：
+        <div class="resultColFirst">處</div>
+        <div class="resultCol">區</div>
+        <div class="resultCol">總人數</div>
+        <div class="resultCol">測量人數</div>
+        <div class="resultCol">未測量</div>
+        <div class="resultCol">測量率</div>
+        <div class="resultCol">未測量率</div>
+        <div class="resultCol">測量次數<8</div>
+        <div class="resultCol">總量測次數</div>
+        <div class="resultCol">平均測量次數</div>
+        <div class="resultCol">正常</div>
+        <div class="resultCol">血壓異常率</div>
+        <div class="resultCol">高血壓前期</div>
+        <div class="resultCol">第一期</div>
+        <div class="resultCol">第二期</div>
+        <div class="resultCol">高血壓危象</div>
+        <div class="resultCol">計畫測量人數</div>
+        <div class="resultCol">計畫未測量人數</div>
+        <div class="resultCol">計畫測量率%</div>
+        <div class="resultCol">計畫未測量率%</div>
+        <div class="resultCol">計畫總量測次數</div>
+        <div class="resultCol">門店平均量測次數</div>
+        <div class="resultCol">計畫正常</div>
+        <div class="resultCol">計畫前期</div>
+        <div class="resultCol">計畫第一期</div>
+        <div class="resultCol">計畫第二期</div>
+        <div class="resultCol">計畫危象</div>
+        <div class="resultCol">計畫血壓異常率</div>
+        <br/>
+        <div class="inputSheet">(sheetName：店)</div>
+        輸出欄位：
+        <div class="resultColFirst">處</div>
+        <div class="resultCol">區</div>
+        <div class="resultCol">代碼</div>
+        <div class="resultCol">部門名稱</div>
+        <div class="resultCol">總人數</div>
+        <div class="resultCol">測量人數</div>
+        <div class="resultCol">未測量</div>
+        <div class="resultCol">測量率</div>
+        <div class="resultCol">未測量率</div>
+        <div class="resultCol">測量次數<8</div>
+        <div class="resultCol">總量測次數</div>
+        <div class="resultCol">平均測量次數</div>
+        <div class="resultCol">正常</div>
+        <div class="resultCol">血壓異常率</div>
+        <div class="resultCol">高血壓前期</div>
+        <div class="resultCol">第一期</div>
+        <div class="resultCol">第二期</div>
+        <div class="resultCol">高血壓危象</div>
+        <div class="resultCol">計畫測量人數</div>
+        <div class="resultCol">計畫未測量人數</div>
+        <div class="resultCol">計畫測量率%</div>
+        <div class="resultCol">計畫未測量率%</div>
+        <div class="resultCol">計畫總量測次數</div>
+        <div class="resultCol">門店平均量測次數</div>
+        <div class="resultCol">計畫正常</div>
+        <div class="resultCol">計畫前期</div>
+        <div class="resultCol">計畫第一期</div>
+        <div class="resultCol">計畫第二期</div>
+        <div class="resultCol">計畫危象</div>
+        <div class="resultCol">計畫血壓異常率</div>
+      </div>
+      <div>
+        <br/>
+        <div class="inputTitle">備註：</div>
+        <div>1. 輸入的Excel已經包含處的所有員工。</div>
+        <div>2. 店的代碼是空的。</div>
+      </div>
 		</form>
 
     <script src="./js/jquery-3.6.0.min.js"></script>
@@ -82,6 +244,11 @@
       $('#btnUploadPress').on('click', function (event) {
         event.preventDefault();
         uploadFile('UploadPress');
+      });
+
+      $('#btnUploadPressNew').on('click', function (event) {
+        event.preventDefault();
+        uploadFile('UploadPressNew');
       });
     </script>
   </body>

@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const readExcel = require('./readExcel')
 const idExcel = require('./service/idExcel')
 const pressExcel = require('./service/pressExcel')
+const pressExcelNew = require('./service/pressExcelNew')
 const sharpImage = require('./service/sharpImage')
 const wang = require('./wang')
 
@@ -71,6 +72,13 @@ app.post('/import/UploadPress', upload.single('uploadExcelPress'), async functio
   const fileName = await pressExcel.parserPressExcel(req.file.path, '')
   res.json({fileName})
 })
+// 血壓Version
+app.post('/import/UploadPressNew', upload.single('uploadExcelPressNew'), async function(req, res){
+  console.log(req.file);
+  const fileName = await pressExcelNew.parserPressExcel(req.file.path)
+  res.json({fileName})
+})
+
 // 血壓(月份)
 app.post('/import/UploadMonthPress/:month', upload.single('uploadExcelMonthPress'), async function(req, res){
   console.log(req.file);

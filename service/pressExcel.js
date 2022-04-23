@@ -641,6 +641,10 @@ function changePressDepartColor(ws, columnLength, dataLength){
   }
 }
 
+module.exports.changePressTwoColor = changePressTwoColor;
+module.exports.changePressOneColor = changePressOneColor;
+module.exports.changePressDepartColor = changePressDepartColor;
+
 /*
 async function changePressColor(fileName){
   return new Promise((resolve, reject) => {
