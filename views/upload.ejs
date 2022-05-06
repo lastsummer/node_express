@@ -7,31 +7,31 @@
     <title>轉換Excel 暫時網站</title>
     <link href="./css/bootstrap.css" rel="stylesheet" />
     <style>
-      .title{
-        color: #CC0000;
-        font-size:20px;
-        font-weight:500;
+      .title {
+        color: #cc0000;
+        font-size: 20px;
+        font-weight: 500;
       }
-      .resultCol{
-        display:table-cell;
-        border-top:1px solid #000000;
-        border-right:1px solid #000000;
-        border-bottom:1px solid #000000;
-        padding:5px;
+      .resultCol {
+        display: table-cell;
+        border-top: 1px solid #000000;
+        border-right: 1px solid #000000;
+        border-bottom: 1px solid #000000;
+        padding: 5px;
       }
-      .resultColFirst{
-        display:table-cell;
-        border:1px solid #000000;
-        padding:5px;
+      .resultColFirst {
+        display: table-cell;
+        border: 1px solid #000000;
+        padding: 5px;
       }
 
-      .inputTitle{
-        color:#227700;
-        font-weight:500;
-        display:table-cell;
+      .inputTitle {
+        color: #227700;
+        font-weight: 500;
+        display: table-cell;
       }
-      .inputSheet{
-        display:table-cell;
+      .inputSheet {
+        display: table-cell;
       }
     </style>
   </head>
@@ -42,44 +42,43 @@
         <label for="formFile" class="title">4級 / 心力評量表</label>
         <input class="form-control" type="file" id="uploadExcel4" name="uploadExcel4" />
       </div>
-			<div class="spinner-border" role="status" id="loadingUpload4" style="display:none">
-				<span class="visually-hidden">Loading...</span>
-			</div>
+      <div class="spinner-border" role="status" id="loadingUpload4" style="display: none">
+        <span class="visually-hidden">Loading...</span>
+      </div>
       <div id="resultUpload4"></div>
       <div>
-				<button type="button" class="btn btn-primary" id="btnUpload4">送出</button>
-			</div>
-		</form>
-    <div style="height:50px"></div>
+        <button type="button" class="btn btn-primary" id="btnUpload4">送出</button>
+      </div>
+    </form>
+    <div style="height: 50px"></div>
 
     <form id="formUploadPress">
       <div class="mb-3">
         <label for="formFile" class="title">血壓</label>
         <input class="form-control" type="file" id="uploadExcelPress" name="uploadExcelPress" />
       </div>
-			<div class="spinner-border" role="status" id="loadingUploadPress" style="display:none">
-				<span class="visually-hidden">Loading...</span>
-			</div>
+      <div class="spinner-border" role="status" id="loadingUploadPress" style="display: none">
+        <span class="visually-hidden">Loading...</span>
+      </div>
       <div id="resultUploadPress"></div>
       <div>
-				<button type="button" class="btn btn-primary" id="btnUploadPress">送出</button>
-			</div>
-		</form>
-    <div style="height:50px"></div>
+        <button type="button" class="btn btn-primary" id="btnUploadPress">送出</button>
+      </div>
+    </form>
+    <div style="height: 50px"></div>
 
-    
     <form id="formUploadPressNew">
       <div class="mb-3">
         <label for="formFile" class="title">血壓新格式</label>
         <input class="form-control" type="file" id="uploadExcelPressNew" name="uploadExcelPressNew" />
       </div>
-			<div class="spinner-border" role="status" id="loadingUploadPressNew" style="display:none">
-				<span class="visually-hidden">Loading...</span>
-			</div>
+      <div class="spinner-border" role="status" id="loadingUploadPressNew" style="display: none">
+        <span class="visually-hidden">Loading...</span>
+      </div>
       <div id="resultUploadPressNew"></div>
       <div>
-				<button type="button" class="btn btn-primary" id="btnUploadPressNew">送出</button>
-			</div>
+        <button type="button" class="btn btn-primary" id="btnUploadPressNew">送出</button>
+      </div>
       <div>
         <div class="inputTitle">輸入格式：</div>
         <div class="inputSheet">(sheetName：血壓統計)</div>
@@ -96,11 +95,12 @@
         <div class="resultCol">離職日</div>
         <div class="resultCol">平均收縮壓</div>
         <div class="resultCol">平均舒張壓</div>
+        <div class="resultCol">血壓分級</div>
         <div class="resultCol">平均脈搏</div>
         <div class="resultCol">量測次數</div>
       </div>
       <div>
-        <br/>
+        <br />
         <div class="inputTitle">輸出格式：</div>
         <div class="inputSheet">(sheetName：血壓統計(有加上未測量原因))</div>
         輸出欄位：
@@ -119,7 +119,7 @@
         <div class="resultCol">平均脈搏</div>
         <div class="resultCol">量測次數</div>
         <div class="resultCol">未測量原因</div>
-        <br/>
+        <br />
         <div class="inputSheet">(sheetName：處)</div>
         輸出欄位：
         <div class="resultColFirst">處</div>
@@ -149,7 +149,7 @@
         <div class="resultCol">計畫第二期</div>
         <div class="resultCol">計畫危象</div>
         <div class="resultCol">計畫血壓異常率</div>
-        <br/>
+        <br />
         <div class="inputSheet">(sheetName：區)</div>
         輸出欄位：
         <div class="resultColFirst">處</div>
@@ -180,7 +180,7 @@
         <div class="resultCol">計畫第二期</div>
         <div class="resultCol">計畫危象</div>
         <div class="resultCol">計畫血壓異常率</div>
-        <br/>
+        <br />
         <div class="inputSheet">(sheetName：店)</div>
         輸出欄位：
         <div class="resultColFirst">處</div>
@@ -215,34 +215,35 @@
         <div class="resultCol">計畫血壓異常率</div>
       </div>
       <div>
-        <br/>
+        <br />
         <div class="inputTitle">規則：</div>
         <div>1. 計畫測量人數只有計算測量次數>=4。</div>
         <div>2. 計畫未測量人數=總人數-計畫測量人數。</div>
         <div>3. 總人數/測量人數/計畫測量人數(所有的計算)不會計算未測量人數。</div>
+        <div>4. 使用「血壓分級」</div>
       </div>
       <div>
-        <br/>
+        <br />
         <div class="inputTitle">備註：</div>
         <div>1. 輸入的Excel已經包含處的所有員工。</div>
         <div>2. 店的代碼是空的。</div>
         <div>3. 需要用到未測量名單。</div>
       </div>
-		</form>
-    <div style="height:50px"></div>
+    </form>
+    <div style="height: 50px"></div>
 
     <form id="formUploadRemoveId">
       <div class="mb-3">
         <label for="formFile" class="title">未測量名單員工資料</label>
         <input class="form-control" type="file" id="uploadExcelRemoveId" name="uploadExcelRemoveId" />
       </div>
-			<div class="spinner-border" role="status" id="loadingUploadRemoveId" style="display:none">
-				<span class="visually-hidden">Loading...</span>
-			</div>
+      <div class="spinner-border" role="status" id="loadingUploadRemoveId" style="display: none">
+        <span class="visually-hidden">Loading...</span>
+      </div>
       <div id="resultUploadRemoveId"></div>
       <div>
-				<button type="button" class="btn btn-primary" id="btnUploadRemoveId">送出</button>
-			</div>
+        <button type="button" class="btn btn-primary" id="btnUploadRemoveId">送出</button>
+      </div>
       <div>
         <div class="inputTitle">輸入格式：</div>
         <div class="inputSheet">(sheetName：未測量名單)</div>
@@ -256,11 +257,11 @@
         <div class="resultColFirst">未測量4次原因</div>
       </div>
       <div>
-        <br/>
+        <br />
         <div class="inputTitle">備註：</div>
         <div>1. 只要是「未測量4次原因」有填寫就會計算到未測量。</div>
       </div>
-		</form>
+    </form>
 
     <script src="./js/jquery-3.6.0.min.js"></script>
 
@@ -269,8 +270,8 @@
         $('#btn' + formName).prop('disabled', true);
         let form = $('#form' + formName)[0];
         let data = new FormData(form);
-        $('#loading' + formName ).show();
-        $('#result' + formName).html("");
+        $('#loading' + formName).show();
+        $('#result' + formName).html('');
         $.ajax({
           type: 'POST',
           enctype: 'multipart/form-data',
@@ -282,11 +283,9 @@
           async: true,
           timeout: 1000000,
           success: function (data) {
-						
-            $('#result' + formName).html("<a href='../download/"+data.fileName+"' target=\"_blank\">"+data.fileName+"</a>");
-            $('#loading' + formName ).hide();
+            $('#result' + formName).html("<a href='../download/" + data.fileName + '\' target="_blank">' + data.fileName + '</a>');
+            $('#loading' + formName).hide();
             $('#btn' + formName).prop('disabled', false);
-						
           },
           error: function (e) {
             console.log('ERROR : ', e);
@@ -294,7 +293,6 @@
           },
         });
       };
-
 
       $('#btnUpload4').on('click', function (event) {
         event.preventDefault();
@@ -315,8 +313,8 @@
         $('#btn' + formName).prop('disabled', true);
         let form = $('#form' + formName)[0];
         let data = new FormData(form);
-        $('#loading' + formName ).show();
-        $('#result' + formName).html("");
+        $('#loading' + formName).show();
+        $('#result' + formName).html('');
         $.ajax({
           type: 'POST',
           enctype: 'multipart/form-data',
@@ -328,11 +326,9 @@
           async: true,
           timeout: 1000000,
           success: function (data) {
-						
             $('#result' + formName).html(data);
-            $('#loading' + formName ).hide();
+            $('#loading' + formName).hide();
             $('#btn' + formName).prop('disabled', false);
-						
           },
           error: function (e) {
             console.log('ERROR : ', e);
@@ -340,7 +336,6 @@
           },
         });
       };
-
 
       $('#btnUploadRemoveId').on('click', function (event) {
         event.preventDefault();
