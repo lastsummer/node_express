@@ -192,6 +192,7 @@ function getDepartList(dataList, removeIdData) {
           totalPeople = totalPeople + 1;
           two = j['第一層組織'];
           one = j['第二層組織'];
+          departNo = j['區域單位代碼'];
         }
       }
     }
@@ -255,21 +256,6 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
   XLSXStyle.writeFile(excel, `result/${id}.xlsx`);
 
   return `${id}.xlsx`;
-
-  /*
-
-  上兩層組織中文名稱 - 第一層組織
-  上一層組織中文名稱 - 第二層組織
-  代碼
-  部門名稱 - 區域
-  工號 - 工號
-  姓名 - 姓名
-  平均收縮壓 - 平均收縮壓
-  平均舒張壓 - 平均舒張壓
-  平均脈搏 - 平均脈搏
-  測量次數 - 量測次數
-  高血壓等級 - 血壓分級
-  */
 };
 
 const ABCArr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH'];
