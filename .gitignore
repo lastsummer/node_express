@@ -1,6 +1,8 @@
 # dependencies
 /node_modules
 /wang/data/*
+/result/*
+/uploads/*
 idTOdepart.json
 workIdTOdepart.json
 removeId.json

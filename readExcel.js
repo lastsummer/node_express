@@ -113,6 +113,7 @@ async function parserHeartExcel(filename) {
         else if (sbp < 159 || dbp < 99) pressScore = 2;
         else if (sbp >= 160 && dbp >= 100) pressScore = 3;
 
+<<<<<<< HEAD
         if (sick && sick.indexOf('糖尿病') >= 0) sickScore = 2;
         if (smoke != '從未吸菸') smokeScore = 2;
       } else if (sex == '女') {
@@ -125,6 +126,10 @@ async function parserHeartExcel(filename) {
         else if (age <= 64) ageScore = 8;
         else if (age <= 69) ageScore = 8;
         else if (age <= 74) ageScore = 8;
+=======
+        if(sick && sick.indexOf("糖尿病")>=0) sickScore = 2;
+        if(smoke!="從未吸菸") smokeScore = 2;
+>>>>>>> a46e0b5 (增加心力量表)
 
         if (cholesterol < 160) cholesterolScore = -2;
         else if (cholesterol <= 199) cholesterolScore = 0;
@@ -144,8 +149,19 @@ async function parserHeartExcel(filename) {
         else if (sbp < 159 || dbp < 99) pressScore = 2;
         else if (sbp >= 160 && dbp >= 100) pressScore = 3;
 
+<<<<<<< HEAD
         if (sick && sick.indexOf('糖尿病') >= 0) sickScore = 4;
         if (smoke != '從未吸菸') smokeScore = 2;
+=======
+        if(sbp<120 && dbp<80) pressScore = -3;
+        else if(sbp<129 || dbp<84) pressScore = 0;
+        else if(sbp<139 || dbp<89) pressScore = 0;
+        else if(sbp<159 || dbp<99) pressScore = 2;
+        else if(sbp>=160 && dbp>=100) pressScore = 3;
+
+        if(sick && sick.indexOf("糖尿病")>=0) sickScore = 4;
+        if(smoke!="從未吸菸") smokeScore = 2;
+>>>>>>> a46e0b5 (增加心力量表)
       }
       totaScore = ageScore + cholesterolScore + highCholesterolScore + pressScore + sickScore + smokeScore;
 
