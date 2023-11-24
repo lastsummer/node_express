@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../js/select.dataTables.min.css" />
     <!-- End plugin css for this page -->
     <!-- inject:css -->
-    <link rel="stylesheet" href="../css/vertical-layout-light/style.css" />
+    <link rel="stylesheet" href="../css/vertical-layout-light/style.css?v=4454" />
     <!-- endinject -->
     <link rel="shortcut icon" href="images/favicon.png" />
   </head>
@@ -106,21 +106,30 @@
                               </td>
                               <td class="py-1">
                                 <p id="startStr"><%= data.dayList[i].start %></p>
-                                <form class="form-inline" id="startForm" style="display:none">
-                                  <input type="text" class="form-control mb-2 mr-sm-2 startHour">
-                                  <label class="col-form-label" for="inlineFormInputGroupUsername2">：</label>
-                                  <input type="text" class="form-control mb-2 mr-sm-2 startMinute">
-                                  <code class="startError"></code>
-                                </form>
+                                <div id="startForm" style="display:none">
+                                  <div style="width:200px"></div>
+                                  <form class="form-inline" >
+                                    <label class="col-form-label" for="inlineFormInputGroupUsername2">時</label>
+                                    <input type="text" class="form-control w-40 startHour">
+                                    <label class="col-form-label" for="inlineFormInputGroupUsername2">分</label>
+                                    <input type="text" class="form-control w-40 startMinute">
+                                    <code class="startError"></code>
+                                  </form>
+                                </div>
+                                
                               </td>
                               <td class="py-1">
                                 <p id="endStr"><%= data.dayList[i].end %></p>
-                                <form class="form-inline" id="endForm" style="display:none">
-                                  <input type="text" class="form-control mb-2 mr-sm-2 endHour">
-                                  <label class="col-form-label" for="inlineFormInputGroupUsername2">：</label>
-                                  <input type="text" class="form-control mb-2 mr-sm-2 endMinute">
-                                  <code class="endError"></code>
-                                </form>
+                                <div id="endForm" style="display:none">
+                                  <div style="width:200px"></div>
+                                  <form class="form-inline">
+                                    <label class="col-form-label" for="inlineFormInputGroupUsername2">時</label>
+                                    <input type="text" class="form-control w-40 endHour">
+                                    <label class="col-form-label" for="inlineFormInputGroupUsername2">分</label>
+                                    <input type="text" class="form-control w-40 endMinute">
+                                    <code class="endError"></code>
+                                  </form>
+                                 </div>
                               </td>
                               <td class="timeProgress">
                                 <% if (data.dayList[i].time.timeFormate !="") { %>
