@@ -273,9 +273,17 @@
       let form = $('#searchForm')[0]
       $("#loading").show()
 		  $("#showResult").html("")
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const userName = urlParams.get('userName')
+      let searchUrl = '/wang/search?month='+$( "input[name=searchMonth]" ).val()+"&year="+$( "input[name=searchYear]" ).val()
+      if(userName){
+        searchUrl = searchUrl+"&userName="+userName
+      }
+
       $.ajax({
           type: 'get',
-          url: '/wang/search?month='+$( "input[name=searchMonth]" ).val()+"&year="+$( "input[name=searchYear]" ).val(),
+          url: searchUrl,
           processData: false,
           contentType: false,
           cache: false,

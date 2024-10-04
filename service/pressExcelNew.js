@@ -230,9 +230,12 @@ module.exports.parserPressExcel = async function parserPressExcel(filename) {
     result.push(userUser);
   });
 
+  console.log(result[0])
+
   const ws = xlsx.utils.json_to_sheet(result);
   xlsx.utils.book_append_sheet(excel, ws, '血壓統計(有加上未測量原因)');
-  changePressColor(ws, 15, result.length);
+  console.log(`result.length===${result.length}`)
+  changePressColor(ws, 13, result.length);
 
   // 處
   const twoData = getTwoList(result, removeIdData);
@@ -283,6 +286,7 @@ function changePressColor(ws, columnLength, dataLength) {
 
   // title
   for (let i = 0; i < columnLength; i++) {
+    console.log(`${ABCArr[i]}1`)
     ws[`${ABCArr[i]}1`].s = {
       fill: {
         fgColor: { rgb: 'FFFFFACD' },

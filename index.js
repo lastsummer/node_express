@@ -98,11 +98,11 @@ app.get('/wang', function(req, res){
   res.render('wangLogin')
 })
 app.get('/wang/dashboard', async function(req, res){
-  const data = await wang.getCurrentMonth()
+  const data = await wang.getCurrentMonth(req.query.userName)
   res.render('wangDashboad',{data})
 })
 app.get('/wang/search', async function(req, res){
-  const data = await wang.getMonthData(req.query.year*1, req.query.month*1-1)
+  const data = await wang.getMonthData(req.query.year*1, req.query.month*1-1, req.query.userName)
   res.json({data})
 })
 app.get('/wang/saveTime', async function(req, res){

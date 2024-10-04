@@ -101,10 +101,14 @@ const weekArray = {
   0: "日"
 }
 
-async function getMonthData(year, month){
+async function getMonthData(year, month, userName){
   let dayList = []
   const currentMonth = month+1;
-  const file = await getFile(`wang/data/${year}-${addZero(currentMonth)}.json`)
+  let userFileName = ""
+  if (userName) {
+    userFileName = `-${userName}`
+  }
+  const file = await getFile(`wang/data/${year}-${addZero(currentMonth)}${userFileName}.json`)
   const dayData = JSON.parse(file);
   let totalTime = 0;
   for(let i = 1; i<=31; i++){
@@ -129,9 +133,9 @@ async function getMonthData(year, month){
   return {currentMonth: addZero(currentMonth), currentYear: year, totalTimeFormate , dayList}
 }
 module.exports.getMonthData = getMonthData
-module.exports.getCurrentMonth = async function getCurrentMonth(){
+module.exports.getCurrentMonth = async function getCurrentMonth(userName){
   const today = new Date()
-  return getMonthData(today.getFullYear(), today.getMonth())
+  return getMonthData(today.getFullYear(), today.getMonth(), userName)
 }
 
 async function getExistTime(year, month, day){
