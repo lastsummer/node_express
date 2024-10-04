@@ -5,5 +5,8 @@
 /uploads/*
 idTOdepart.json
 workIdTOdepart.json
+<<<<<<< HEAD
 removeId.json
 /views/down.html
+=======
+>>>>>>> e327c9698351386f54a9a81924bd36e6cbca971f
