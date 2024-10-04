@@ -363,9 +363,17 @@
     });
 
     function deleteDay(obj){
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const userName = urlParams.get('userName')
+      let queryUrl = '/wang/deleteTime?month='+$(obj).parent().attr("month")+"&year="+$(obj).parent().attr("year")+"&day="+$(obj).parent().attr("day")
+      if(userName){
+        queryUrl = queryUrl+"&userName="+userName
+      }
+
       $.ajax({
           type: 'get',
-          url: '/wang/deleteTime?month='+$(obj).parent().attr("month")+"&year="+$(obj).parent().attr("year")+"&day="+$(obj).parent().attr("day"),
+          url: queryUrl,
           processData: false,
           contentType: false,
           cache: false,
@@ -430,10 +438,18 @@
     function saveDay(obj){
       const { startValid, endValid, start, end} = validForm(obj)
       if(startValid && endValid){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const userName = urlParams.get('userName')
+        let queryUrl = '/wang/saveTime?month='+$(obj).parent().attr("month")+"&year="+$(obj).parent().attr("year")+"&day="+$(obj).parent().attr("day")
+          +"&start="+start+"&end="+end
+        if(userName){
+          queryUrl = queryUrl+"&userName="+userName
+        }
+      
         $.ajax({
           type: 'get',
-          url: '/wang/saveTime?month='+$(obj).parent().attr("month")+"&year="+$(obj).parent().attr("year")+"&day="+$(obj).parent().attr("day")
-          +"&start="+start+"&end="+end,
+          url: queryUrl,
           processData: false,
           contentType: false,
           cache: false,

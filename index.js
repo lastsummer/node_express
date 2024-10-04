@@ -106,11 +106,11 @@ app.get('/wang/search', async function(req, res){
   res.json({data})
 })
 app.get('/wang/saveTime', async function(req, res){
-  const data = await wang.saveTime(req.query.year*1, req.query.month*1, req.query.day, req.query.start, req.query.end)
+  const data = await wang.saveTime(req.query.year*1, req.query.month*1, req.query.day, req.query.start, req.query.end, req.query.userName)
   res.json({data})
 })
 app.get('/wang/deleteTime', async function(req, res){
-  const data = await wang.deleteTime(req.query.year*1, req.query.month*1, req.query.day)
+  const data = await wang.deleteTime(req.query.year*1, req.query.month*1, req.query.day, req.query.userName)
   res.json({data})
 })
 

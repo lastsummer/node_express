@@ -138,8 +138,12 @@ module.exports.getCurrentMonth = async function getCurrentMonth(userName){
   return getMonthData(today.getFullYear(), today.getMonth(), userName)
 }
 
-async function getExistTime(year, month, day){
-  const fileName = `wang/data/${year}-${addZero(month)}.json`
+async function getExistTime(year, month, day, userName){
+  let userFileName = ""
+  if (userName) {
+    userFileName = `-${userName}`
+  }
+  const fileName = `wang/data/${year}-${addZero(month)}${userFileName}.json`
   const file = await getFile(fileName)
   const dayData = JSON.parse(file)
   let newMonthData = {}
@@ -154,8 +158,8 @@ async function getExistTime(year, month, day){
   return { newMonthData, totalTime, fileName}
 }
 
-module.exports.saveTime = async function saveTime(year, month, day, start, end){
-  let { newMonthData, totalTime, fileName} = await getExistTime(year, month, day)
+module.exports.saveTime = async function saveTime(year, month, day, start, end, userName){
+  let { newMonthData, totalTime, fileName} = await getExistTime(year, month, day, userName)
 
   let formateStartTime = addTimeZero(start);
   let formateEndTime = addTimeZero(end);
@@ -177,8 +181,8 @@ function addTimeZero(time){
   return `${addZero(timeArr[0]*1)}:${addZero(timeArr[1]*1)}`
 }
 
-module.exports.deleteTime = async function deleteTime(year, month, day){
-  let { newMonthData, totalTime, fileName} = await getExistTime(year, month, day)
+module.exports.deleteTime = async function deleteTime(year, month, day, userName){
+  let { newMonthData, totalTime, fileName} = await getExistTime(year, month, day, userName)
 
   let hour = parseInt(totalTime/60)
   totalTimeFormate = `${hour}小時${totalTime-hour*60}分`
